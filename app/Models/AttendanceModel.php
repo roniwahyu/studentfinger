@@ -6,60 +6,46 @@ use CodeIgniter\Model;
 
 class AttendanceModel extends Model
 {
-    protected $table = 'attendance';
-    protected $primaryKey = 'id';
+    protected $table = 'att_log';
+    protected $primaryKey = ['sn', 'scan_date', 'pin']; // Composite primary key
     protected $returnType = 'array';
-    protected $useSoftDeletes = true;
-    protected $useTimestamps = true;
-    protected $createdField = 'created_at';
-    protected $updatedField = 'updated_at';
-    protected $deletedField = 'deleted_at';
-    
+    protected $useSoftDeletes = false;
+    protected $useTimestamps = false;
+
     protected $allowedFields = [
-        'student_id',
-        'attendance_date',
-        'check_in_time',
-        'check_out_time',
-        'status',
-        'attendance_type',
-        'device_id',
-        'notes',
-        'marked_by',
-        'late_minutes',
-        'early_departure_minutes'
+        'sn',
+        'scan_date',
+        'pin',
+        'verifymode',
+        'inoutmode',
+        'reserved',
+        'work_code',
+        'att_id'
     ];
     
     protected $validationRules = [
-        'student_id' => 'required|integer|is_not_unique[students.id]',
-        'attendance_date' => 'required|valid_date[Y-m-d]',
-        'check_in_time' => 'permit_empty|valid_date[H:i:s]',
-        'check_out_time' => 'permit_empty|valid_date[H:i:s]',
-        'status' => 'required|in_list[Present,Absent,Late,Excused,Sick]',
-        'attendance_type' => 'required|in_list[Fingerprint,RFID,Manual,Facial]',
-        'device_id' => 'permit_empty|integer',
-        'notes' => 'permit_empty|max_length[500]',
-        'marked_by' => 'permit_empty|integer',
-        'late_minutes' => 'permit_empty|integer|greater_than_equal_to[0]',
-        'early_departure_minutes' => 'permit_empty|integer|greater_than_equal_to[0]'
+        'sn' => 'required|max_length[30]',
+        'scan_date' => 'required|valid_date[Y-m-d H:i:s]',
+        'pin' => 'required|max_length[32]',
+        'verifymode' => 'required|integer',
+        'inoutmode' => 'permit_empty|integer',
+        'reserved' => 'permit_empty|integer',
+        'work_code' => 'permit_empty|integer',
+        'att_id' => 'permit_empty|max_length[50]'
     ];
-    
+
     protected $validationMessages = [
-        'student_id' => [
-            'required' => 'Student ID is required',
-            'integer' => 'Student ID must be a number',
-            'is_not_unique' => 'Student does not exist'
+        'sn' => [
+            'required' => 'Serial number is required',
+            'max_length' => 'Serial number cannot exceed 30 characters'
         ],
-        'attendance_date' => [
-            'required' => 'Attendance date is required',
-            'valid_date' => 'Please provide a valid date'
+        'scan_date' => [
+            'required' => 'Scan date is required',
+            'valid_date' => 'Please provide a valid date and time'
         ],
-        'status' => [
-            'required' => 'Attendance status is required',
-            'in_list' => 'Please select a valid status'
-        ],
-        'attendance_type' => [
-            'required' => 'Attendance type is required',
-            'in_list' => 'Please select a valid attendance type'
+        'pin' => [
+            'required' => 'PIN is required',
+            'max_length' => 'PIN cannot exceed 32 characters'
         ]
     ];
     
@@ -69,149 +55,226 @@ class AttendanceModel extends Model
     public function getAttendanceWithStudents($filters = [])
     {
         $builder = $this->db->table($this->table)
-            ->select('attendance.*, students.name as student_name, students.student_id as student_code, classes.name as class_name, sections.name as section_name')
-            ->join('students', 'students.id = attendance.student_id')
-            ->join('classes', 'classes.id = students.class_id', 'left')
-            ->join('sections', 'sections.id = students.section_id', 'left')
-            ->where('attendance.deleted_at', null);
-            
+            ->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
+            ->join('students', 'students.pin = att_log.pin', 'left');
+
         // Apply filters
         if (!empty($filters['search'])) {
             $builder->groupStart()
-                ->like('students.name', $filters['search'])
+                ->like('students.firstname', $filters['search'])
+                ->orLike('students.lastname', $filters['search'])
                 ->orLike('students.student_id', $filters['search'])
+                ->orLike('att_log.pin', $filters['search'])
+                ->orLike('att_log.sn', $filters['search'])
                 ->groupEnd();
         }
-        
-        if (!empty($filters['class_id'])) {
-            $builder->where('students.class_id', $filters['class_id']);
-        }
-        
-        if (!empty($filters['section_id'])) {
-            $builder->where('students.section_id', $filters['section_id']);
-        }
-        
+
         if (!empty($filters['date_from'])) {
-            $builder->where('attendance.attendance_date >=', $filters['date_from']);
+            $builder->where('DATE(att_log.scan_date) >=', $filters['date_from']);
         }
-        
+
         if (!empty($filters['date_to'])) {
-            $builder->where('attendance.attendance_date <=', $filters['date_to']);
+            $builder->where('DATE(att_log.scan_date) <=', $filters['date_to']);
         }
-        
-        if (!empty($filters['status'])) {
-            $builder->where('attendance.status', $filters['status']);
+
+        if (!empty($filters['verifymode'])) {
+            $builder->where('att_log.verifymode', $filters['verifymode']);
         }
-        
-        return $builder->orderBy('attendance.attendance_date', 'DESC')
-                      ->orderBy('attendance.created_at', 'DESC');
+
+        if (!empty($filters['inoutmode'])) {
+            $builder->where('att_log.inoutmode', $filters['inoutmode']);
+        }
+
+        if (!empty($filters['sn'])) {
+            $builder->where('att_log.sn', $filters['sn']);
+        }
+
+        return $builder->orderBy('att_log.scan_date', 'DESC');
     }
     
     /**
-     * Get attendance statistics
+     * Get attendance statistics by inoutmode
      */
     public function getAttendanceStats($dateFrom = null, $dateTo = null)
     {
         $builder = $this->db->table($this->table)
-            ->select('status, COUNT(*) as count')
-            ->where('deleted_at', null);
-            
+            ->select('inoutmode, COUNT(*) as count');
+
         if ($dateFrom) {
-            $builder->where('attendance_date >=', $dateFrom);
+            $builder->where('DATE(scan_date) >=', $dateFrom);
         }
-        
+
         if ($dateTo) {
-            $builder->where('attendance_date <=', $dateTo);
+            $builder->where('DATE(scan_date) <=', $dateTo);
         }
-        
-        return $builder->groupBy('status')->get()->getResultArray();
+
+        return $builder->groupBy('inoutmode')->get()->getResultArray();
     }
-    
+
     /**
      * Get daily attendance summary
      */
     public function getDailyAttendanceSummary($date)
     {
         return $this->db->table($this->table)
-            ->select('status, COUNT(*) as count')
-            ->where('attendance_date', $date)
-            ->where('deleted_at', null)
-            ->groupBy('status')
+            ->select('inoutmode, COUNT(*) as count')
+            ->where('DATE(scan_date)', $date)
+            ->groupBy('inoutmode')
             ->get()
             ->getResultArray();
     }
+
+    /**
+     * Get inoutmode labels for display
+     */
+    public function getInOutModeLabel($inoutmode)
+    {
+        $labels = [
+            0 => 'Check In',
+            1 => 'Check In',
+            2 => 'Check Out',
+            3 => 'Break Out',
+            4 => 'Break In',
+            5 => 'Overtime In',
+            6 => 'Overtime Out'
+        ];
+
+        return $labels[$inoutmode] ?? 'Unknown';
+    }
+
+    /**
+     * Get verify mode labels for display
+     */
+    public function getVerifyModeLabel($verifymode)
+    {
+        $labels = [
+            1 => 'Fingerprint',
+            3 => 'RFID Card',
+            20 => 'Face Recognition'
+        ];
+
+        return $labels[$verifymode] ?? 'Unknown';
+    }
     
     /**
-     * Get student attendance history
+     * Get student attendance history by PIN
      */
-    public function getStudentAttendanceHistory($studentId, $limit = 30)
+    public function getStudentAttendanceHistory($pin, $limit = 30)
     {
-        return $this->where('student_id', $studentId)
-                   ->orderBy('attendance_date', 'DESC')
+        return $this->where('pin', $pin)
+                   ->orderBy('scan_date', 'DESC')
+                   ->limit($limit)
+                   ->findAll();
+    }
+
+    /**
+     * Check if attendance exists for PIN on date
+     */
+    public function attendanceExists($pin, $date)
+    {
+        return $this->where('pin', $pin)
+                   ->where('DATE(scan_date)', $date)
+                   ->countAllResults() > 0;
+    }
+
+    /**
+     * Get recent attendance logs
+     */
+    public function getRecentAttendance($limit = 10)
+    {
+        return $this->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
+                   ->join('students', 'students.pin = att_log.pin', 'left')
+                   ->orderBy('scan_date', 'DESC')
                    ->limit($limit)
                    ->findAll();
     }
     
     /**
-     * Check if attendance exists for student on date
-     */
-    public function attendanceExists($studentId, $date)
-    {
-        return $this->where('student_id', $studentId)
-                   ->where('attendance_date', $date)
-                   ->countAllResults() > 0;
-    }
-    
-    /**
      * Get monthly attendance report
      */
-    public function getMonthlyReport($year, $month, $classId = null, $sectionId = null)
+    public function getMonthlyReport($year, $month)
     {
         $builder = $this->db->table($this->table)
-            ->select('attendance.*, students.name as student_name, students.student_id as student_code')
-            ->join('students', 'students.id = attendance.student_id')
-            ->where('YEAR(attendance.attendance_date)', $year)
-            ->where('MONTH(attendance.attendance_date)', $month)
-            ->where('attendance.deleted_at', null);
-            
-        if ($classId) {
-            $builder->where('students.class_id', $classId);
-        }
-        
-        if ($sectionId) {
-            $builder->where('students.section_id', $sectionId);
-        }
-        
-        return $builder->orderBy('attendance.attendance_date', 'ASC')
+            ->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
+            ->join('students', 'students.id = att_log.student_id', 'left')
+            ->where('YEAR(att_log.scan_date)', $year)
+            ->where('MONTH(att_log.scan_date)', $month);
+
+        return $builder->orderBy('att_log.scan_date', 'ASC')
                       ->get()
                       ->getResultArray();
     }
-    
+
     /**
-     * Bulk mark attendance
+     * Bulk insert attendance logs
      */
-    public function bulkMarkAttendance($attendanceData)
+    public function bulkInsertLogs($attendanceData)
     {
         return $this->insertBatch($attendanceData);
     }
-    
+
     /**
-     * Get attendance by device
+     * Get attendance by device serial number
      */
-    public function getAttendanceByDevice($deviceId, $dateFrom = null, $dateTo = null)
+    public function getAttendanceByDevice($serialNumber, $dateFrom = null, $dateTo = null)
     {
-        $builder = $this->where('device_id', $deviceId)
-                       ->where('deleted_at', null);
-                       
+        $builder = $this->where('serialnumber', $serialNumber);
+
         if ($dateFrom) {
-            $builder->where('attendance_date >=', $dateFrom);
+            $builder->where('DATE(scan_date) >=', $dateFrom);
         }
-        
+
         if ($dateTo) {
-            $builder->where('attendance_date <=', $dateTo);
+            $builder->where('DATE(scan_date) <=', $dateTo);
         }
-        
-        return $builder->orderBy('attendance_date', 'DESC')
+
+        return $builder->orderBy('scan_date', 'DESC')
                       ->findAll();
+    }
+
+    /**
+     * Get today's attendance summary for dashboard
+     */
+    public function getTodaysSummary()
+    {
+        $today = date('Y-m-d');
+        $stats = $this->getDailyAttendanceSummary($today);
+
+        $summary = [
+            'check_in' => 0,
+            'check_out' => 0,
+            'break_out' => 0,
+            'break_in' => 0,
+            'total' => 0,
+            'unique_users' => 0
+        ];
+
+        foreach ($stats as $stat) {
+            $summary['total'] += $stat['count'];
+            switch ($stat['inoutmode']) {
+                case 0:
+                case 1:
+                    $summary['check_in'] += $stat['count'];
+                    break;
+                case 2:
+                    $summary['check_out'] += $stat['count'];
+                    break;
+                case 3:
+                    $summary['break_out'] += $stat['count'];
+                    break;
+                case 4:
+                    $summary['break_in'] += $stat['count'];
+                    break;
+            }
+        }
+
+        // Get unique users for today
+        $summary['unique_users'] = $this->db->table($this->table)
+            ->select('pin')
+            ->where('DATE(scan_date)', $today)
+            ->groupBy('pin')
+            ->countAllResults();
+
+        return $summary;
     }
 }

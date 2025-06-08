@@ -4,62 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= csrf_token() ?>">
-    <title><?= $this->renderSection('title') ?> - Student Management System</title>
+    <title><?= $this->renderSection('title') ?> - Student Finger</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 0;
-            border-radius: 0.375rem;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
         }
         .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
+            padding: 20px;
         }
         .navbar {
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
         }
         .card {
             border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: box-shadow 0.15s ease-in-out;
-        }
-        .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        }
-        .page-title-box {
-            padding: 1.5rem 0;
-        }
-        .avatar-sm {
-            height: 3rem;
-            width: 3rem;
-        }
-        .avatar-title {
-            align-items: center;
-            background-color: #556ee6;
-            color: #fff;
-            display: flex;
-            font-weight: 500;
-            height: 100%;
-            justify-content: center;
-            width: 100%;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
         }
     </style>
     <?= $this->renderSection('styles') ?>
@@ -68,88 +51,80 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white">SMS</h4>
-                        <p class="text-white-50 small">Student Management System</p>
-                    </div>
-                    
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="p-3">
+                    <h4 class="text-center mb-4">Student Finger</h4>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link <?= uri_string() == '' ? 'active' : '' ?>" href="<?= base_url('/') ?>">
-                                <i class="fas fa-home me-2"></i>
-                                Dashboard
+                            <a class="nav-link" href="<?= base_url('dashboard') ?>">
+                                <i class="fas fa-home me-2"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= strpos(uri_string(), 'students') !== false ? 'active' : '' ?>" href="<?= base_url('students') ?>">
-                                <i class="fas fa-users me-2"></i>
-                                Students
+                            <a class="nav-link" href="<?= base_url('students') ?>">
+                                <i class="fas fa-users me-2"></i> Students
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= strpos(uri_string(), 'attendance') !== false ? 'active' : '' ?>" href="<?= base_url('attendance') ?>">
-                                <i class="fas fa-calendar-check me-2"></i>
-                                Attendance
+                            <a class="nav-link" href="<?= base_url('attendance') ?>">
+                                <i class="fas fa-calendar-check me-2"></i> Attendance
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chalkboard-teacher me-2"></i>
-                                Classes
+                            <a class="nav-link" href="<?= base_url('attendance-logs') ?>">
+                                <i class="fas fa-list-alt me-2"></i> Attendance Logs
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-layer-group me-2"></i>
-                                Sections
+                            <a class="nav-link" href="<?= base_url('user-logs') ?>">
+                                <i class="fas fa-history me-2"></i> User Logs
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-calendar-alt me-2"></i>
-                                Sessions
+                            <a class="nav-link" href="<?= base_url('table-manager') ?>">
+                                <i class="fas fa-database me-2"></i> Table Manager
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Reports
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cog me-2"></i>
-                                Settings
+                            <a class="nav-link" href="<?= base_url('classes') ?>">
+                                <i class="fas fa-chalkboard me-2"></i> Classes
                             </a>
                         </li>
                     </ul>
                 </div>
-            </nav>
+            </div>
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Top Navigation -->
-                <nav class="navbar navbar-expand-lg navbar-light mb-4">
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Navbar -->
+                <nav class="navbar navbar-expand-lg mb-4">
                     <div class="container-fluid">
-                        <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target=".sidebar">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                             <span class="navbar-toggler-icon"></span>
                         </button>
-                        
-                        <div class="navbar-nav ms-auto">
-                            <div class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle me-1"></i>
-                                    Admin
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                                </ul>
-                            </div>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-user me-2"></i> Admin
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('classes') ?>">
+                                <i class="fas fa-chalkboard me-2"></i> Classes
+                            </a>
+                        </li>
+                    </ul>
+                                </li>
+                                <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('classes') ?>">
+                                <i class="fas fa-chalkboard me-2"></i> Classes
+                            </a>
+                        </li>
+                    </ul>
                         </div>
                     </div>
                 </nav>
@@ -187,23 +162,57 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Page Content -->
+                <!-- Content -->
                 <?= $this->renderSection('content') ?>
-            </main>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Custom Scripts -->
-    <script>
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            $('.alert').fadeOut('slow');
-        }, 5000);
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Initialize Components -->
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables
+            $('.datatable').DataTable({
+                responsive: true,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search..."
+                }
+            });
+
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+
+            // Initialize SweetAlert2
+            window.showToast = function(message, type = 'success') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: type,
+                    title: message
+                });
+            };
+        });
+    </script>
+
+    <!-- CSRF token setup for AJAX requests -->
+    <script>
         // CSRF token setup for AJAX requests
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
@@ -213,6 +222,7 @@
             }
         });
     </script>
+
     <?= $this->renderSection('scripts') ?>
 </body>
 </html>

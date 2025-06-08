@@ -1,12 +1,12 @@
 <?= $this->extend('layouts/main') ?>
 
-<?= $this->section('title') ?>students<?= $this->endSection() ?>
+<?= $this->section('title') ?>classes<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">students</h4>
-        <a href="<?= base_url('students/create') ?>" class="btn btn-primary">
+        <h4 class="mb-0">classes</h4>
+        <a href="<?= base_url('classes/create') ?>" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Create New
         </a>
     </div>
@@ -22,14 +22,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($students as $item): ?>
+                        <?php foreach ($classes as $item): ?>
                         <tr>
                             <td><?= $item['id'] ?></td>
                             <td>
-                                <a href="<?= base_url('students/view/' . $item['id']) ?>" class="btn btn-sm btn-info">
+                                <a href="<?= base_url('classes/view/' . $item['id']) ?>" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="<?= base_url('students/edit/' . $item['id']) ?>" class="btn btn-sm btn-warning">
+                                <a href="<?= base_url('classes/edit/' . $item['id']) ?>" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?= $item['id'] ?>)">
@@ -59,7 +59,7 @@ function confirmDelete(id) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = `<?= base_url('students/delete/') ?>/${id}`;
+            window.location.href = `<?= base_url('classes/delete/') ?>/${id}`;
         }
     });
 }

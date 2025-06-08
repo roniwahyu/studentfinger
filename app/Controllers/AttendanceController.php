@@ -49,10 +49,7 @@ class AttendanceController extends BaseController
         ];
         
         // Get attendance records with pagination
-        $attendanceRecords = $this->attendanceModel
-            ->select('attendance.*, students.name as student_name, students.student_id as student_code')
-            ->join('students', 'students.id = attendance.student_id')
-            ->where('attendance.deleted_at', null);
+        $attendanceRecords = $this->attendanceModel->getAttendanceWithStudents($filters);
             
         // Apply filters
         if (!empty($filters['search'])) {
