@@ -20,26 +20,14 @@ class StudentModel extends Model
     
     protected $allowedFields = [
         'student_id',
-        'name',
+        'admission_no',
+        'firstname',
+        'lastname',
+        'mobileno',
         'email',
-        'phone',
-        'address',
-        'date_of_birth',
-        'gender',
-        'rfid_card',
-        'photo',
-        'parent_name',
-        'parent_phone',
-        'parent_email',
-        'emergency_contact',
-        'blood_group',
-        'medical_info',
-        'admission_date',
-        'class_id',
-        'section_id',
-        'session_id',
-        'status',
-        'notes'
+        'father_phone',
+        'rfid',
+        'status'
     ];
     
     protected $useTimestamps = true;
@@ -49,22 +37,15 @@ class StudentModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'student_id' => 'required|max_length[20]|is_unique[students.student_id,id,{id}]',
-        'name' => 'required|min_length[3]|max_length[100]',
+        'student_id' => 'required|is_unique[students.student_id,id,{id}]',
+        'admission_no' => 'permit_empty|max_length[50]',
+        'firstname' => 'required|min_length[2]|max_length[100]',
+        'lastname' => 'required|min_length[2]|max_length[100]',
         'email' => 'permit_empty|valid_email|is_unique[students.email,id,{id}]',
-        'phone' => 'permit_empty|max_length[20]',
-        'date_of_birth' => 'permit_empty|valid_date[Y-m-d]',
-        'gender' => 'required|in_list[Male,Female,Other]',
-        'rfid_card' => 'permit_empty|max_length[50]|is_unique[students.rfid_card,id,{id}]',
-        'parent_phone' => 'permit_empty|max_length[20]',
-        'parent_email' => 'permit_empty|valid_email',
-        'emergency_contact' => 'permit_empty|max_length[20]',
-        'blood_group' => 'permit_empty|in_list[A+,A-,B+,B-,AB+,AB-,O+,O-]',
-        'admission_date' => 'permit_empty|valid_date[Y-m-d]',
-        'class_id' => 'required|integer',
-        'section_id' => 'required|integer',
-        'session_id' => 'required|integer',
-        'status' => 'required|in_list[Active,Inactive,Graduated,Transferred]'
+        'mobileno' => 'permit_empty|max_length[20]',
+        'rfid' => 'permit_empty|max_length[32]|is_unique[students.rfid,id,{id}]',
+        'father_phone' => 'permit_empty|max_length[20]',
+        'status' => 'permit_empty|in_list[0,1]'
     ];
     
     protected $validationMessages = [
@@ -72,36 +53,19 @@ class StudentModel extends Model
             'required' => 'Student ID is required',
             'is_unique' => 'Student ID already exists'
         ],
-        'name' => [
-            'required' => 'Student name is required',
-            'min_length' => 'Student name must be at least 3 characters long'
+        'firstname' => [
+            'required' => 'First name is required',
+            'min_length' => 'First name must be at least 2 characters'
+        ],
+        'lastname' => [
+            'required' => 'Last name is required',
+            'min_length' => 'Last name must be at least 2 characters'
         ],
         'email' => [
-            'valid_email' => 'Please provide a valid email address',
-            'is_unique' => 'Email address already exists'
+            'valid_email' => 'Please enter a valid email address'
         ],
-        'gender' => [
-            'required' => 'Gender is required',
-            'in_list' => 'Please select a valid gender'
-        ],
-        'rfid_card' => [
-            'is_unique' => 'RFID card number already exists'
-        ],
-        'class_id' => [
-            'required' => 'Class is required',
-            'integer' => 'Please select a valid class'
-        ],
-        'section_id' => [
-            'required' => 'Section is required',
-            'integer' => 'Please select a valid section'
-        ],
-        'session_id' => [
-            'required' => 'Session is required',
-            'integer' => 'Please select a valid session'
-        ],
-        'status' => [
-            'required' => 'Status is required',
-            'in_list' => 'Please select a valid status'
+        'rfid' => [
+            'is_unique' => 'RFID card already exists'
         ]
     ];
     

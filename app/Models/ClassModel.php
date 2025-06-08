@@ -14,11 +14,7 @@ class ClassModel extends Model
     protected $protectFields = true;
     
     protected $allowedFields = [
-        'name',
-        'description',
-        'grade_level',
-        'capacity',
-        'status'
+        'class'
     ];
     
     protected $useTimestamps = true;
@@ -28,20 +24,13 @@ class ClassModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'name' => 'required|min_length[2]|max_length[100]|is_unique[classes.name,id,{id}]',
-        'grade_level' => 'permit_empty|integer|greater_than[0]',
-        'capacity' => 'permit_empty|integer|greater_than[0]',
-        'status' => 'required|in_list[Active,Inactive]'
+        'class' => 'required|min_length[1]|max_length[100]'
     ];
     
     protected $validationMessages = [
-        'name' => [
+        'class' => [
             'required' => 'Class name is required',
-            'is_unique' => 'Class name already exists'
-        ],
-        'status' => [
-            'required' => 'Status is required',
-            'in_list' => 'Please select a valid status'
+            'min_length' => 'Class name must be at least 1 character'
         ]
     ];
     

@@ -14,11 +14,7 @@ class SessionModel extends Model
     protected $protectFields = true;
     
     protected $allowedFields = [
-        'name',
-        'start_date',
-        'end_date',
-        'is_active',
-        'description',
+        'session',
         'status'
     ];
     
@@ -29,28 +25,14 @@ class SessionModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'name' => 'required|min_length[3]|max_length[100]|is_unique[sessions.name,id,{id}]',
-        'start_date' => 'required|valid_date[Y-m-d]',
-        'end_date' => 'required|valid_date[Y-m-d]',
-        'status' => 'required|in_list[Active,Inactive,Completed]'
+        'session' => 'required|min_length[1]|max_length[100]',
+        'status' => 'permit_empty|in_list[0,1]'
     ];
     
     protected $validationMessages = [
-        'name' => [
+        'session' => [
             'required' => 'Session name is required',
-            'is_unique' => 'Session name already exists'
-        ],
-        'start_date' => [
-            'required' => 'Start date is required',
-            'valid_date' => 'Please provide a valid start date'
-        ],
-        'end_date' => [
-            'required' => 'End date is required',
-            'valid_date' => 'Please provide a valid end date'
-        ],
-        'status' => [
-            'required' => 'Status is required',
-            'in_list' => 'Please select a valid status'
+            'min_length' => 'Session name must be at least 1 character'
         ]
     ];
     

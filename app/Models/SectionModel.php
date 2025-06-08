@@ -14,11 +14,7 @@ class SectionModel extends Model
     protected $protectFields = true;
     
     protected $allowedFields = [
-        'name',
-        'class_id',
-        'capacity',
-        'description',
-        'status'
+        'section'
     ];
     
     protected $useTimestamps = true;
@@ -28,23 +24,13 @@ class SectionModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'name' => 'required|min_length[1]|max_length[50]',
-        'class_id' => 'required|integer|is_not_unique[classes.id]',
-        'capacity' => 'permit_empty|integer|greater_than[0]',
-        'status' => 'required|in_list[Active,Inactive]'
+        'section' => 'required|min_length[1]|max_length[100]'
     ];
     
     protected $validationMessages = [
-        'name' => [
-            'required' => 'Section name is required'
-        ],
-        'class_id' => [
-            'required' => 'Class is required',
-            'is_not_unique' => 'Selected class does not exist'
-        ],
-        'status' => [
-            'required' => 'Status is required',
-            'in_list' => 'Please select a valid status'
+        'section' => [
+            'required' => 'Section name is required',
+            'min_length' => 'Section name must be at least 1 character'
         ]
     ];
     
