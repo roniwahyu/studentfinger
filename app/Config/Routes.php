@@ -9,7 +9,8 @@ $routes->get('/', 'Home::index');
 
 // Load module routes
 $moduleRoutes = [
-    'StudentManagement'
+    'StudentManagement',
+    'Attendance'
 ];
 
 foreach ($moduleRoutes as $module) {

@@ -6,7 +6,8 @@ use App\Libraries\BaseModule;
 
 class AttendanceModule extends BaseModule
 {
-    protected $moduleName = 'Attendance';
+    public string $moduleName = 'Attendance';
+    // protected $moduleName = 'Attendance';
     protected $moduleVersion = '1.0.0';
     protected $dependencies = ['StudentManagement'];
     
@@ -19,7 +20,7 @@ class AttendanceModule extends BaseModule
     /**
      * Initialize the Attendance module
      */
-    public function initialize()
+    public function initialize(): void
     {
         // Load attendance-specific configurations
         $this->loadHelpers(['attendance', 'time']);
@@ -31,8 +32,6 @@ class AttendanceModule extends BaseModule
         $this->initializeServices();
         
         $this->log('Attendance module initialized successfully');
-        
-        return true;
     }
     
     /**

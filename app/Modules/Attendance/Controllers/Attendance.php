@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Attendance\Controllers;
+namespace Modules\Attendance\Controllers;
 
 use App\Libraries\BaseModule;
 use App\Modules\Attendance\Models\AttendanceModel;
 use App\Modules\Attendance\Models\DeviceModel;
 use App\Modules\Attendance\Models\TimetableModel;
-use App\Modules\StudentManagement\Models\StudentModel;
+use Modules\StudentManagement\Models\StudentModel;
 use App\Modules\StudentManagement\Models\ClassModel;
 use App\Modules\StudentManagement\Models\SectionModel;
 use CodeIgniter\Controller;

@@ -9,7 +9,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // Attendance Module Routes
-$routes->group('attendance', ['namespace' => 'App\Modules\Attendance\Controllers'], function($routes) {
+$routes->group('attendance', ['namespace' => 'Modules\Attendance\Controllers'], function($routes) {
     
     // Main Attendance Routes
     $routes->get('/', 'Attendance::index', ['as' => 'attendance.index']);
@@ -99,7 +99,7 @@ $routes->group('attendance', ['namespace' => 'App\Modules\Attendance\Controllers
 });
 
 // API Routes for Attendance Module
-$routes->group('api/attendance', ['namespace' => 'App\Modules\Attendance\Controllers\Api'], function($routes) {
+$routes->group('api/attendance', ['namespace' => 'Modules\Attendance\Controllers\Api'], function($routes) {
     
     // Authentication required for all API routes
     $routes->group('', ['filter' => 'api_auth'], function($routes) {
@@ -170,7 +170,7 @@ $routes->group('api/attendance', ['namespace' => 'App\Modules\Attendance\Control
 });
 
 // Widget Routes for Dashboard
-$routes->group('widgets/attendance', ['namespace' => 'App\Modules\Attendance\Controllers\Widgets'], function($routes) {
+$routes->group('widgets/attendance', ['namespace' => 'Modules\Attendance\Controllers\Widgets'], function($routes) {
     $routes->get('today-summary', 'AttendanceWidgets::todaySummary', ['as' => 'widgets.attendance.today_summary']);
     $routes->get('attendance-chart', 'AttendanceWidgets::attendanceChart', ['as' => 'widgets.attendance.chart']);
     $routes->get('absent-students', 'AttendanceWidgets::absentStudents', ['as' => 'widgets.attendance.absent_students']);
@@ -180,7 +180,7 @@ $routes->group('widgets/attendance', ['namespace' => 'App\Modules\Attendance\Con
 });
 
 // Webhook Routes (for external integrations)
-$routes->group('webhooks/attendance', ['namespace' => 'App\Modules\Attendance\Controllers\Webhooks'], function($routes) {
+$routes->group('webhooks/attendance', ['namespace' => 'Modules\Attendance\Controllers\Webhooks'], function($routes) {
     $routes->post('fingerspot', 'AttendanceWebhooks::fingerspot', ['as' => 'webhooks.attendance.fingerspot']);
     $routes->post('rfid-reader', 'AttendanceWebhooks::rfidReader', ['as' => 'webhooks.attendance.rfid']);
     $routes->post('facial-recognition', 'AttendanceWebhooks::facialRecognition', ['as' => 'webhooks.attendance.facial']);
@@ -188,8 +188,8 @@ $routes->group('webhooks/attendance', ['namespace' => 'App\Modules\Attendance\Co
 });
 
 // CLI Routes (for scheduled tasks)
-$routes->cli('attendance/sync-devices', 'App\Modules\Attendance\Commands\SyncDevices::run');
-$routes->cli('attendance/mark-absent', 'App\Modules\Attendance\Commands\MarkAbsentStudents::run');
-$routes->cli('attendance/daily-report', 'App\Modules\Attendance\Commands\SendDailyReport::run');
-$routes->cli('attendance/cleanup-logs', 'App\Modules\Attendance\Commands\CleanupLogs::run');
-$routes->cli('attendance/backup-data', 'App\Modules\Attendance\Commands\BackupAttendanceData::run');
+$routes->cli('attendance/sync-devices', 'Modules\Attendance\Commands\SyncDevices::run');
+$routes->cli('attendance/mark-absent', 'Modules\Attendance\Commands\MarkAbsentStudents::run');
+$routes->cli('attendance/daily-report', 'Modules\Attendance\Commands\SendDailyReport::run');
+$routes->cli('attendance/cleanup-logs', 'Modules\Attendance\Commands\CleanupLogs::run');
+$routes->cli('attendance/backup-data', 'Modules\Attendance\Commands\BackupAttendanceData::run');
