@@ -13,6 +13,9 @@ define('APP_NAMESPACE', 'App');
 // Define composer path
 define('COMPOSER_PATH', ROOTPATH . 'vendor/autoload.php');
 
+// Define environment
+define('ENVIRONMENT', 'development');
+
 // Define exit constants
 define('EXIT_SUCCESS', 0);
 define('EXIT_ERROR', 1);
