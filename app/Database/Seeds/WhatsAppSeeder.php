@@ -8,52 +8,27 @@ class WhatsAppSeeder extends Seeder
 {
     public function run()
     {
-        // Create default templates
+        // Create default templates (using existing table structure)
         $templates = [
             [
                 'template_name' => 'Student Check-in Notification',
                 'template_content' => 'Hello {parent_name}, your child {student_name} has arrived at school at {time} on {date}. Have a great day!',
-                'template_type' => 'attendance',
-                'variables' => json_encode(['{parent_name}', '{student_name}', '{time}', '{date}']),
-                'is_active' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'template_type' => 'attendance'
             ],
             [
                 'template_name' => 'Student Check-out Notification',
                 'template_content' => 'Hello {parent_name}, your child {student_name} has left school at {time} on {date}. Please ensure safe arrival home.',
-                'template_type' => 'attendance',
-                'variables' => json_encode(['{parent_name}', '{student_name}', '{time}', '{date}']),
-                'is_active' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'template_type' => 'attendance'
             ],
             [
                 'template_name' => 'Absence Notification',
                 'template_content' => 'Dear {parent_name}, we noticed that {student_name} is absent today ({date}). Please contact the school if this is an emergency.',
-                'template_type' => 'attendance',
-                'variables' => json_encode(['{parent_name}', '{student_name}', '{date}']),
-                'is_active' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'template_name' => 'Late Arrival Warning',
-                'template_content' => 'Hello {parent_name}, {student_name} arrived late at {time} on {date}. Please ensure punctual arrival to avoid missing important lessons.',
-                'template_type' => 'attendance',
-                'variables' => json_encode(['{parent_name}', '{student_name}', '{time}', '{date}']),
-                'is_active' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'template_type' => 'attendance'
             ],
             [
                 'template_name' => 'General Announcement',
                 'template_content' => 'Dear Parents/Students, {announcement_text}. Thank you for your attention. - {school_name}',
-                'template_type' => 'notification',
-                'variables' => json_encode(['{announcement_text}', '{school_name}']),
-                'is_active' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'template_type' => 'notification'
             ]
         ];
 
@@ -74,16 +49,7 @@ class WhatsAppSeeder extends Seeder
             'device_name' => 'Sample WhatsApp Device',
             'device_token' => 'your_api_token_here',
             'device_status' => 0, // Inactive by default
-            'api_url' => 'https://api.wablas.com',
-            'device_type' => 'wablas',
-            'webhook_url' => base_url('whatsappintegration/webhook/' . uniqid()),
-            'settings' => json_encode([
-                'auto_reply_enabled' => false,
-                'rate_limit' => 30, // messages per minute
-                'retry_attempts' => 3
-            ]),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'api_url' => 'https://api.wablas.com'
         ];
 
         $existingDevice = $this->db->table('wa_devices')
@@ -98,53 +64,7 @@ class WhatsAppSeeder extends Seeder
         // Sync contacts from students table if exists
         $this->syncContactsFromStudents();
 
-        // Create default settings
-        $defaultSettings = [
-            [
-                'setting_key' => 'attendance_integration',
-                'setting_value' => json_encode([
-                    'enabled' => false,
-                    'device_id' => null,
-                    'checkin_template_id' => 1,
-                    'checkout_template_id' => 2,
-                    'absent_template_id' => 3,
-                    'late_template_id' => 4,
-                    'auto_send_checkin' => false,
-                    'auto_send_checkout' => false,
-                    'auto_send_absent' => false,
-                    'send_time_checkin' => '08:00',
-                    'send_time_checkout' => '15:00',
-                    'send_time_absent' => '09:00'
-                ]),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ],
-            [
-                'setting_key' => 'general_settings',
-                'setting_value' => json_encode([
-                    'school_name' => 'Student Attendance System',
-                    'timezone' => 'Asia/Jakarta',
-                    'date_format' => 'Y-m-d',
-                    'time_format' => 'H:i',
-                    'max_retry_attempts' => 3,
-                    'queue_processing_interval' => 60, // seconds
-                    'log_retention_days' => 90
-                ]),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]
-        ];
-
-        foreach ($defaultSettings as $setting) {
-            $existing = $this->db->table('wa_settings')
-                                ->where('setting_key', $setting['setting_key'])
-                                ->get()
-                                ->getRowArray();
-            
-            if (!$existing) {
-                $this->db->table('wa_settings')->insert($setting);
-            }
-        }
+        // Skip settings creation for now since wa_settings table might not exist
 
         echo "WhatsApp Gateway seeder completed successfully!\n";
         echo "- Created default message templates\n";
