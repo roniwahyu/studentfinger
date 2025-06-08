@@ -1,0 +1,186 @@
+=== MySQL Database Audit Trail Checker ===
+Connecting to database: studentfinger on localhost
+
+✓ Successfully connected to MySQL database
+
+Found 24 tables:
+- att_log
+- calender
+- class_sections
+- classes
+- device
+- jns_izin
+- kategori_izin
+- libur
+- migrations
+- sections
+- sessions
+- student_attendance
+- student_izin
+- student_session
+- students
+- subject_timetable
+- subjects
+- wa_auto_replies
+- wa_contacts
+- wa_devices
+- wa_logs
+- wa_messages
+- wa_schedules
+- wa_templates
+
+Checking table: att_log
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: calender
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: class_sections
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: classes
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: device
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: jns_izin
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: kategori_izin
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: libur
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: migrations
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: sections
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: sessions
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: student_attendance
+  ❌ Missing audit columns: deleted_at
+  ✓ Existing audit columns: created_at, updated_at
+
+Checking table: student_izin
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: student_session
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: students
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: subject_timetable
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: subjects
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: wa_auto_replies
+  ❌ Missing audit columns: deleted_at
+  ✓ Existing audit columns: created_at, updated_at
+
+Checking table: wa_contacts
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: wa_devices
+  ❌ Missing audit columns: deleted_at
+  ✓ Existing audit columns: created_at, updated_at
+
+Checking table: wa_logs
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: wa_messages
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+Checking table: wa_schedules
+  ❌ Missing audit columns: updated_at, deleted_at
+  ✓ Existing audit columns: created_at
+
+Checking table: wa_templates
+  ❌ Missing audit columns: created_at, updated_at, deleted_at
+
+=== SUMMARY ===
+❌ Tables needing audit trail columns: 24
+
+=== SQL STATEMENTS TO ADD MISSING AUDIT COLUMNS ===
+
+-- Table: att_log
+ALTER TABLE `att_log` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: calender
+ALTER TABLE `calender` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: class_sections
+ALTER TABLE `class_sections` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: classes
+ALTER TABLE `classes` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: device
+ALTER TABLE `device` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: jns_izin
+ALTER TABLE `jns_izin` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: kategori_izin
+ALTER TABLE `kategori_izin` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: libur
+ALTER TABLE `libur` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: migrations
+ALTER TABLE `migrations` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: sections
+ALTER TABLE `sections` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: sessions
+ALTER TABLE `sessions` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: student_attendance
+ALTER TABLE `student_attendance` ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: student_izin
+ALTER TABLE `student_izin` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: student_session
+ALTER TABLE `student_session` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: students
+ALTER TABLE `students` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: subject_timetable
+ALTER TABLE `subject_timetable` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: subjects
+ALTER TABLE `subjects` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_auto_replies
+ALTER TABLE `wa_auto_replies` ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_contacts
+ALTER TABLE `wa_contacts` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_devices
+ALTER TABLE `wa_devices` ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_logs
+ALTER TABLE `wa_logs` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_messages
+ALTER TABLE `wa_messages` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_schedules
+ALTER TABLE `wa_schedules` ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+-- Table: wa_templates
+ALTER TABLE `wa_templates` ADD COLUMN `created_at` DATETIME NULL, ADD COLUMN `updated_at` DATETIME NULL, ADD COLUMN `deleted_at` DATETIME NULL;
+
+
+Script completed.
