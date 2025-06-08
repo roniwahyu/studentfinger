@@ -1,35 +1,31 @@
 <?php
 
-namespace App\Modules\Attendance\Config;
-
-class Module
-{
+// Attendance Module Configuration
+return [
     /**
      * Module Information
      */
-    public static $info = [
-        'name' => 'Attendance Management',
-        'description' => 'Comprehensive attendance tracking system with fingerprint, RFID, and manual attendance marking',
-        'version' => '1.0.0',
-        'author' => 'Student Management System',
-        'dependencies' => ['StudentManagement'],
-        'status' => 'active'
-    ];
+    'name' => 'Attendance Management',
+    'description' => 'Comprehensive attendance tracking system with fingerprint, RFID, and manual attendance marking',
+    'version' => '1.0.0',
+    'author' => 'Student Management System',
+    'dependencies' => ['StudentManagement'],
+    'status' => 'active',
     
     /**
      * Module Routes Prefix
      */
-    public static $routesPrefix = 'attendance';
+    'routesPrefix' => 'attendance',
     
     /**
      * Default Controller
      */
-    public static $defaultController = 'Attendance';
+    'defaultController' => 'Attendance',
     
     /**
      * Module Permissions
      */
-    public static $permissions = [
+    'permissions' => [
         'attendance.view' => 'View Attendance Records',
         'attendance.mark' => 'Mark Attendance',
         'attendance.edit' => 'Edit Attendance Records',
@@ -38,12 +34,12 @@ class Module
         'attendance.devices' => 'Manage Attendance Devices',
         'attendance.settings' => 'Manage Attendance Settings',
         'attendance.bulk_operations' => 'Perform Bulk Attendance Operations'
-    ];
+    ],
     
     /**
      * Module Settings
      */
-    public static $settings = [
+    'settings' => [
         // Attendance timing settings
         'school_start_time' => '08:00:00',
         'school_end_time' => '15:30:00',
@@ -84,23 +80,23 @@ class Module
         // Data retention
         'attendance_data_retention_years' => 5,
         'auto_archive_old_records' => true
-    ];
+    ],
     
     /**
      * Database Tables
      */
-    public static $tables = [
+    'tables' => [
         'attendance',
         'devices',
         'timetable',
         'holidays',
         'attendance_logs'
-    ];
+    ],
     
     /**
      * Validation Rules
      */
-    public static $validationRules = [
+    'validationRules' => [
         'attendance' => [
             'student_id' => 'required|integer|is_not_unique[students.id]',
             'attendance_date' => 'required|valid_date[Y-m-d]',
@@ -125,12 +121,12 @@ class Module
             'end_time' => 'required|valid_date[H:i:s]',
             'subject' => 'permit_empty|max_length[100]'
         ]
-    ];
+    ],
     
     /**
      * Menu Items
      */
-    public static $menuItems = [
+    'menuItems' => [
         [
             'title' => 'Attendance',
             'icon' => 'fas fa-calendar-check',
@@ -170,12 +166,12 @@ class Module
                 ]
             ]
         ]
-    ];
+    ],
     
     /**
      * Dashboard Widgets
      */
-    public static $widgets = [
+    'widgets' => [
         [
             'name' => 'today_attendance',
             'title' => 'Today\'s Attendance',
@@ -208,12 +204,12 @@ class Module
             'permission' => 'attendance.devices',
             'refresh_interval' => 120 // 2 minutes
         ]
-    ];
+    ],
     
     /**
      * API Endpoints
      */
-    public static $apiEndpoints = [
+    'apiEndpoints' => [
         'mark_attendance' => [
             'method' => 'POST',
             'route' => 'api/attendance/mark',
@@ -246,12 +242,12 @@ class Module
             'middleware' => ['api_auth'],
             'rate_limit' => '10,1' // 10 requests per minute
         ]
-    ];
+    ],
     
     /**
      * Event Listeners
      */
-    public static $eventListeners = [
+    'eventListeners' => [
         'attendance_marked' => [
             'App\\Modules\\Attendance\\Listeners\\AttendanceMarkedListener',
             'App\\Modules\\WhatsApp\\Listeners\\SendAttendanceNotification'
@@ -266,12 +262,12 @@ class Module
         'device_offline' => [
             'App\\Modules\\Attendance\\Listeners\\DeviceOfflineListener'
         ]
-    ];
+    ],
     
     /**
      * Scheduled Tasks
      */
-    public static $scheduledTasks = [
+    'scheduledTasks' => [
         'sync_devices' => [
             'schedule' => '*/5 * * * *', // Every 5 minutes
             'command' => 'attendance:sync-devices',
@@ -292,12 +288,12 @@ class Module
             'command' => 'attendance:cleanup-logs',
             'description' => 'Clean up old attendance logs'
         ]
-    ];
+    ],
     
     /**
      * Module Constants
      */
-    public static $constants = [
+    'constants' => [
         'ATTENDANCE_STATUSES' => [
             'PRESENT' => 'Present',
             'ABSENT' => 'Absent',
@@ -322,5 +318,5 @@ class Module
             'INACTIVE' => 'Inactive',
             'MAINTENANCE' => 'Maintenance'
         ]
-    ];
-}
+    ]
+];

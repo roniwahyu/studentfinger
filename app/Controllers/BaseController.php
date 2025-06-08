@@ -19,7 +19,7 @@ use Psr\Log\LoggerInterface;
  *
  * For security be sure to declare any new methods as protected or private.
  */
-abstract class BaseController extends Controller
+abstract class BaseController extends \CodeIgniter\Controller
 {
     /**
      * Instance of the main Request object.

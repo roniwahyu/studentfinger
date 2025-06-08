@@ -128,7 +128,8 @@ class ModuleManager
             $configPath = APPPATH . 'Modules/' . $moduleName . '/Config/Module.php';
             
             if (file_exists($configPath)) {
-                self::$moduleConfigs[$moduleName] = include $configPath;
+                $config = include $configPath;
+                self::$moduleConfigs[$moduleName] = is_array($config) ? $config : [];
             } else {
                 self::$moduleConfigs[$moduleName] = [];
             }

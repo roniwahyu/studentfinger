@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Database\Migrations;
+namespace App\Modules\PermissionCalendar\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 

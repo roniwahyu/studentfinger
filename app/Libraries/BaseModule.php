@@ -71,7 +71,8 @@ abstract class BaseModule
         $configPath = APPPATH . 'Modules/' . $this->getModuleName() . '/Config/Module.php';
         
         if (file_exists($configPath)) {
-            $this->moduleConfig = include $configPath;
+            $config = include $configPath;
+            $this->moduleConfig = is_array($config) ? $config : [];
         }
     }
     
