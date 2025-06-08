@@ -8,7 +8,7 @@
 require_once 'vendor/autoload.php';
 
 // Initialize CodeIgniter
-$app = \Config\Services::codeigniter();
+$app = new \CodeIgniter\CodeIgniter();
 $app->initialize();
 
 // Get the router service

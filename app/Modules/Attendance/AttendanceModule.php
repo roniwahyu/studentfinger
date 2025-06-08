@@ -64,13 +64,8 @@ class AttendanceModule extends BaseModule
     {
         // Initialize fingerprint service
         $this->services['fingerprint'] = new \App\Modules\Attendance\Services\FingerprintService();
-        
-        // Initialize RFID service
-        $this->services['rfid'] = new \App\Modules\Attendance\Services\RfidService();
-        
         // Initialize attendance calculation service
         $this->services['calculator'] = new \App\Modules\Attendance\Services\AttendanceCalculatorService();
-        
         // Initialize notification service
         $this->services['notification'] = new \App\Modules\Attendance\Services\AttendanceNotificationService();
     }
