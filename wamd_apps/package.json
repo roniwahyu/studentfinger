@@ -1,0 +1,45 @@
+{
+  "name": "whatsapp-multi-device-gateway",
+  "version": "1.0.0",
+  "description": "WhatsApp Multi-Device Gateway using Baileys for Student Attendance System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "qr": "node qr-scanner.js",
+    "test": "node test-connection.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "multi-device",
+    "gateway",
+    "attendance",
+    "nodejs"
+  ],
+  "author": "Student Attendance System",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.6.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "qrcode-terminal": "^0.12.0",
+    "qrcode": "^1.5.3",
+    "socket.io": "^4.7.4",
+    "mysql2": "^3.6.5",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "moment": "^2.29.4",
+    "axios": "^1.6.2",
+    "multer": "^1.4.5-lts.1",
+    "helmet": "^7.1.0",
+    "rate-limiter-flexible": "^4.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

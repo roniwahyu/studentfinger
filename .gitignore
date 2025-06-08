@@ -126,3 +126,4 @@ _modules/*
 /phpunit*.xml
 /app/konsep/
 /tests/
+/wamd_apps/node_modules/
