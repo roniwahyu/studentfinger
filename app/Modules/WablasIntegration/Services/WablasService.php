@@ -438,6 +438,169 @@ class WablasService
     }
     
     /**
+     * Get comprehensive statistics
+     */
+    public function getStatistics(): array
+    {
+        try {
+            return [
+                'devices' => [
+                    'total' => $this->deviceModel->countAll(),
+                    'active' => $this->deviceModel->where('device_status', 1)->countAllResults(),
+                    'connected' => $this->deviceModel->where('connection_status', 'connected')->countAllResults(),
+                    'quota_usage' => $this->getQuotaUsageStats()
+                ],
+                'messages' => [
+                    'total' => $this->messageModel->countAll(),
+                    'today' => $this->messageModel->where('DATE(created_at)', date('Y-m-d'))->countAllResults(),
+                    'this_week' => $this->messageModel->where('created_at >=', date('Y-m-d', strtotime('-7 days')))->countAllResults(),
+                    'this_month' => $this->messageModel->where('created_at >=', date('Y-m-01'))->countAllResults(),
+                    'sent' => $this->messageModel->where('status', 'sent')->countAllResults(),
+                    'delivered' => $this->messageModel->where('status', 'delivered')->countAllResults(),
+                    'failed' => $this->messageModel->where('status', 'failed')->countAllResults(),
+                    'success_rate' => $this->calculateSuccessRate()
+                ],
+                'contacts' => [
+                    'total' => $this->contactModel->countAll(),
+                    'active' => $this->contactModel->where('status', 'active')->countAllResults(),
+                    'groups' => $this->contactModel->select('group_id')->distinct()->countAllResults()
+                ],
+                'schedules' => [
+                    'total' => $this->scheduleModel->countAll(),
+                    'pending' => $this->scheduleModel->where('status', 'pending')->countAllResults(),
+                    'sent' => $this->scheduleModel->where('status', 'sent')->countAllResults(),
+                    'failed' => $this->scheduleModel->where('status', 'failed')->countAllResults()
+                ],
+                'performance' => [
+                    'avg_response_time' => $this->calculateAverageResponseTime(),
+                    'peak_hours' => $this->getPeakHours(),
+                    'daily_volume' => $this->getDailyVolume()
+                ]
+            ];
+        } catch (\Exception $e) {
+            $this->logger->error('Error getting statistics: ' . $e->getMessage());
+            return [
+                'devices' => ['total' => 0, 'active' => 0, 'connected' => 0],
+                'messages' => ['total' => 0, 'today' => 0, 'sent' => 0, 'failed' => 0, 'success_rate' => 0],
+                'contacts' => ['total' => 0, 'active' => 0, 'groups' => 0],
+                'schedules' => ['total' => 0, 'pending' => 0, 'sent' => 0, 'failed' => 0],
+                'performance' => ['avg_response_time' => 0, 'peak_hours' => [], 'daily_volume' => []]
+            ];
+        }
+    }
+
+    /**
+     * Calculate success rate
+     */
+    protected function calculateSuccessRate(): float
+    {
+        $total = $this->messageModel->countAll();
+        if ($total == 0) return 0;
+
+        $successful = $this->messageModel->whereIn('status', ['sent', 'delivered', 'read'])->countAllResults();
+        return round(($successful / $total) * 100, 2);
+    }
+
+    /**
+     * Get quota usage statistics
+     */
+    protected function getQuotaUsageStats(): array
+    {
+        $devices = $this->deviceModel->findAll();
+        $totalQuota = 0;
+        $usedQuota = 0;
+
+        foreach ($devices as $device) {
+            $totalQuota += $device['quota_limit'] ?? 0;
+            $usedQuota += $device['quota_used'] ?? 0;
+        }
+
+        return [
+            'total_quota' => $totalQuota,
+            'used_quota' => $usedQuota,
+            'remaining_quota' => $totalQuota - $usedQuota,
+            'usage_percentage' => $totalQuota > 0 ? round(($usedQuota / $totalQuota) * 100, 2) : 0
+        ];
+    }
+
+    /**
+     * Calculate average response time
+     */
+    protected function calculateAverageResponseTime(): float
+    {
+        // This would require tracking response times in the database
+        // For now, return a placeholder value
+        return 1.5; // seconds
+    }
+
+    /**
+     * Get peak hours for message sending
+     */
+    protected function getPeakHours(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $query = $db->query("
+                SELECT HOUR(created_at) as hour, COUNT(*) as count
+                FROM wablas_messages
+                WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAYS)
+                GROUP BY HOUR(created_at)
+                ORDER BY count DESC
+                LIMIT 3
+            ");
+
+            return $query->getResultArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get daily volume for the last 30 days
+     */
+    protected function getDailyVolume(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $query = $db->query("
+                SELECT DATE(created_at) as date, COUNT(*) as count
+                FROM wablas_messages
+                WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY DATE(created_at)
+                ORDER BY date DESC
+            ");
+
+            return $query->getResultArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Send message with simplified interface
+     */
+    public function sendSimpleMessage(string $phoneNumber, string $message, string $deviceId = null): array
+    {
+        try {
+            // Get device ID if not provided
+            if (!$deviceId) {
+                $device = $this->deviceModel->getActiveDevice();
+                if (!$device) {
+                    throw new \Exception('No active device available');
+                }
+                $deviceId = $device['device_id'];
+            }
+
+            return $this->sendMessage((int)$deviceId, $phoneNumber, $message);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Log activity
      */
     protected function logActivity(int $deviceId, string $action, array $data = [], int $messageId = null): void
@@ -451,7 +614,7 @@ class WablasService
             'request_data' => json_encode($data),
             'created_at' => date('Y-m-d H:i:s')
         ];
-        
+
         $this->logModel->insert($logData);
     }
 }

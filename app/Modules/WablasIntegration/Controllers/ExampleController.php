@@ -33,10 +33,64 @@ class ExampleController extends BaseController
         $data = [
             'title' => 'Wablas Integration Examples',
             'devices' => $this->deviceModel->getActiveDevices(),
-            'contacts' => $this->contactModel->getActiveContacts()
+            'contacts' => $this->contactModel->getActiveContacts(),
+            'examples' => [
+                [
+                    'name' => 'Send Simple Message',
+                    'description' => 'Send a basic text message to a phone number',
+                    'endpoint' => 'POST /wablas/examples/send-simple',
+                    'method' => 'sendSimpleMessage'
+                ],
+                [
+                    'name' => 'Send Image Message',
+                    'description' => 'Send an image with caption',
+                    'endpoint' => 'POST /wablas/examples/send-image',
+                    'method' => 'sendImageMessage'
+                ],
+                [
+                    'name' => 'Send Bulk Messages',
+                    'description' => 'Send personalized messages to multiple contacts',
+                    'endpoint' => 'POST /wablas/examples/send-bulk',
+                    'method' => 'sendBulkMessages'
+                ],
+                [
+                    'name' => 'Schedule Message',
+                    'description' => 'Schedule a message for future delivery',
+                    'endpoint' => 'POST /wablas/examples/schedule',
+                    'method' => 'scheduleMessage'
+                ],
+                [
+                    'name' => 'Use API Directly',
+                    'description' => 'Demonstrate direct usage of WablasApi library',
+                    'endpoint' => 'POST /wablas/examples/api-direct',
+                    'method' => 'useApiDirectly'
+                ],
+                [
+                    'name' => 'Manage Contacts',
+                    'description' => 'Create and manage contacts',
+                    'endpoint' => 'POST /wablas/examples/manage-contacts',
+                    'method' => 'manageContacts'
+                ],
+                [
+                    'name' => 'Process Scheduled Messages',
+                    'description' => 'Manually process pending scheduled messages',
+                    'endpoint' => 'POST /wablas/examples/process-schedules',
+                    'method' => 'processScheduledMessages'
+                ],
+                [
+                    'name' => 'Get Statistics',
+                    'description' => 'Get comprehensive system statistics',
+                    'endpoint' => 'GET /wablas/examples/statistics',
+                    'method' => 'getStatistics'
+                ]
+            ]
         ];
-        
-        return view('Modules/WablasIntegration/Views/examples/index', $data);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Wablas Integration Examples',
+            'data' => $data
+        ]);
     }
     
     /**

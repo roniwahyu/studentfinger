@@ -186,6 +186,30 @@ $routes->group('wablas/public', ['namespace' => 'App\Modules\WablasIntegration\C
     $routes->get('status', 'PublicController::status');
 });
 
+// WablasFrontEnd routes (Modern UI/UX Interface)
+$routes->group('wablas-frontend', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
+    $routes->get('/', 'WablasFrontEndController::index');
+    $routes->get('devices', 'WablasFrontEndController::devices');
+    $routes->get('messages', 'WablasFrontEndController::messages');
+    $routes->get('contacts', 'WablasFrontEndController::contacts');
+    $routes->get('attendance', 'WablasFrontEndController::attendance');
+    $routes->get('reports', 'WablasFrontEndController::reports');
+    $routes->get('settings', 'WablasFrontEndController::settings');
+
+    // API endpoints for AJAX requests
+    $routes->group('api', function($routes) {
+        $routes->get('stats', 'WablasFrontEndController::getStats');
+        $routes->get('recent-messages', 'WablasFrontEndController::getRecentMessages');
+        $routes->get('device-status', 'WablasFrontEndController::getDeviceStatus');
+        $routes->get('tab-content/(:segment)', 'WablasFrontEndController::getTabContent/$1');
+        $routes->post('send-message', 'WablasFrontEndController::sendMessage');
+        $routes->post('send-bulk', 'WablasFrontEndController::sendBulkMessage');
+        $routes->post('schedule-message', 'WablasFrontEndController::scheduleMessage');
+        $routes->get('attendance-alerts', 'WablasFrontEndController::getAttendanceAlerts');
+        $routes->post('send-attendance-notification', 'WablasFrontEndController::sendAttendanceNotification');
+    });
+});
+
 // Installation routes (for module setup)
 $routes->group('wablas/install', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
     $routes->get('/', 'InstallController::index');

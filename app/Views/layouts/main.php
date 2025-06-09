@@ -60,11 +60,20 @@
                                 <i class="fas fa-home me-2"></i> Dashboard
                             </a>
                         </li>
+
+                        <!-- Student Management -->
                         <li class="nav-item">
                             <a class="nav-link" href="<?= base_url('students') ?>">
                                 <i class="fas fa-users me-2"></i> Students
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('classes') ?>">
+                                <i class="fas fa-chalkboard me-2"></i> Classes
+                            </a>
+                        </li>
+
+                        <!-- Attendance Management -->
                         <li class="nav-item">
                             <a class="nav-link" href="<?= base_url('attendance') ?>">
                                 <i class="fas fa-calendar-check me-2"></i> Attendance
@@ -75,6 +84,16 @@
                                 <i class="fas fa-list-alt me-2"></i> Attendance Logs
                             </a>
                         </li>
+
+                        <!-- WhatsApp Integration -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('wablas-frontend') ?>" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border-radius: 8px; margin: 4px 0;">
+                                <i class="fab fa-whatsapp me-2"></i> WablasFrontEnd
+                                <span class="badge bg-light text-dark ms-2">NEW</span>
+                            </a>
+                        </li>
+
+                        <!-- System Management -->
                         <li class="nav-item">
                             <a class="nav-link" href="<?= base_url('user-logs') ?>">
                                 <i class="fas fa-history me-2"></i> User Logs
@@ -83,11 +102,6 @@
                         <li class="nav-item">
                             <a class="nav-link" href="<?= base_url('table-manager') ?>">
                                 <i class="fas fa-database me-2"></i> Table Manager
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="<?= base_url('classes') ?>">
-                                <i class="fas fa-chalkboard me-2"></i> Classes
                             </a>
                         </li>
                     </ul>
@@ -104,27 +118,31 @@
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ms-auto">
+                                <!-- Quick Actions -->
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?= base_url('wablas-frontend') ?>" title="WhatsApp Integration">
+                                        <i class="fab fa-whatsapp text-success"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?= base_url('attendance') ?>" title="Attendance">
+                                        <i class="fas fa-calendar-check text-primary"></i>
+                                    </a>
+                                </li>
+
+                                <!-- User Dropdown -->
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-user me-2"></i> Admin
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                                        <li><a class="dropdown-item" href="<?= base_url('wablas-frontend/settings') ?>"><i class="fas fa-cog me-2"></i> WABLAS Settings</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i> Profile Settings</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
-                                        <li class="nav-item">
-                            <a class="nav-link" href="<?= base_url('classes') ?>">
-                                <i class="fas fa-chalkboard me-2"></i> Classes
-                            </a>
-                        </li>
-                    </ul>
+                                    </ul>
                                 </li>
-                                <li class="nav-item">
-                            <a class="nav-link" href="<?= base_url('classes') ?>">
-                                <i class="fas fa-chalkboard me-2"></i> Classes
-                            </a>
-                        </li>
-                    </ul>
+                            </ul>
                         </div>
                     </div>
                 </nav>

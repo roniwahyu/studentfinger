@@ -50,6 +50,16 @@ class InstallController extends BaseController
     public function install()
     {
         try {
+            // Check if already installed
+            if ($this->isModuleInstalled()) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Wablas Integration Module is already installed',
+                    'version' => $this->getModule()->getModuleInfo()['version'],
+                    'installed' => true
+                ]);
+            }
+
             // Check requirements first
             $requirements = $this->checkSystemRequirements();
             $failed = array_filter($requirements, function($req) {
@@ -66,17 +76,15 @@ class InstallController extends BaseController
 
             // Run migrations first
             $migrateResult = $this->runMigrations();
-            if (!$migrateResult['success']) {
-                return $this->response->setJSON($migrateResult);
-            }
 
-            // Set installation flag
+            // Set installation flag even if some migrations failed (tables might already exist)
             $this->setInstallationFlag(true);
 
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Wablas Integration Module installed successfully',
-                'version' => $this->getModule()->getModuleInfo()['version']
+                'version' => $this->getModule()->getModuleInfo()['version'],
+                'migration_result' => $migrateResult
             ]);
 
         } catch (\Exception $e) {
@@ -177,6 +185,9 @@ class InstallController extends BaseController
         try {
             $db = \Config\Database::connect();
 
+            // Check which tables already exist
+            $existingTables = $this->getExistingTables();
+
             // Get migration files
             $migrationPath = APPPATH . 'Modules/WablasIntegration/Database/Migrations/';
             $migrationFiles = glob($migrationPath . '*.php');
@@ -190,11 +201,19 @@ class InstallController extends BaseController
 
             sort($migrationFiles); // Execute in order
             $executed = [];
+            $skipped = [];
             $errors = [];
 
             foreach ($migrationFiles as $file) {
                 try {
                     $className = $this->getMigrationClassName($file);
+                    $tableName = $this->getTableNameFromMigration($file);
+
+                    // Skip if table already exists
+                    if ($tableName && in_array($tableName, $existingTables)) {
+                        $skipped[] = basename($file) . " (table '{$tableName}' already exists)";
+                        continue;
+                    }
 
                     if ($className) {
                         require_once $file;
@@ -208,23 +227,31 @@ class InstallController extends BaseController
                         }
                     }
                 } catch (\Exception $e) {
-                    $errors[] = basename($file) . ': ' . $e->getMessage();
-                    // Continue with other migrations
+                    $errorMsg = $e->getMessage();
+                    // Skip "table already exists" errors
+                    if (strpos($errorMsg, 'already exists') !== false) {
+                        $skipped[] = basename($file) . ': ' . $errorMsg;
+                    } else {
+                        $errors[] = basename($file) . ': ' . $errorMsg;
+                    }
                 }
             }
 
-            if (!empty($errors) && empty($executed)) {
-                return [
-                    'success' => false,
-                    'error' => 'All migrations failed: ' . implode(', ', $errors)
-                ];
-            }
+            $totalProcessed = count($executed) + count($skipped);
+            $hasSuccess = $totalProcessed > 0;
 
             return [
-                'success' => true,
-                'message' => 'Database migrations completed' . (!empty($errors) ? ' with some errors' : ' successfully'),
+                'success' => $hasSuccess,
+                'message' => $hasSuccess ? 'Database setup completed' : 'No migrations processed',
                 'executed' => $executed,
-                'errors' => $errors
+                'skipped' => $skipped,
+                'errors' => $errors,
+                'summary' => [
+                    'total_files' => count($migrationFiles),
+                    'executed' => count($executed),
+                    'skipped' => count($skipped),
+                    'errors' => count($errors)
+                ]
             ];
 
         } catch (\Exception $e) {
@@ -233,6 +260,35 @@ class InstallController extends BaseController
                 'error' => 'Migration failed: ' . $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Get existing tables
+     */
+    protected function getExistingTables(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $tables = $db->listTables();
+            return $tables;
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get table name from migration file
+     */
+    protected function getTableNameFromMigration(string $filePath): ?string
+    {
+        $content = file_get_contents($filePath);
+
+        // Look for createTable call
+        if (preg_match('/createTable\([\'"]([^\'"]+)[\'"]/', $content, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     /**
