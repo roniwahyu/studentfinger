@@ -47,7 +47,12 @@ class Dashboard extends BaseController
             'recent_logs' => $this->logModel->getRecentLogs(10)
         ];
         
-        return view('Modules/WablasIntegration/Views/dashboard/index', $data);
+        // For now, return JSON response until view system is properly configured
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Wablas Integration Dashboard',
+            'data' => $data
+        ]);
     }
     
     /**

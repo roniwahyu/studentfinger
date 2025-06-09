@@ -49,17 +49,13 @@ class InstallController extends BaseController
      */
     public function install()
     {
-        if (!$this->request->isAJAX()) {
-            return redirect()->to('wablas/install');
-        }
-        
         try {
             // Check requirements first
-            $requirements = $this->checkRequirements();
+            $requirements = $this->checkSystemRequirements();
             $failed = array_filter($requirements, function($req) {
                 return !$req['status'];
             });
-            
+
             if (!empty($failed)) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -67,26 +63,22 @@ class InstallController extends BaseController
                     'failed_requirements' => $failed
                 ]);
             }
-            
-            // Install the module
-            $result = $this->getModule()->install();
-            
-            if ($result['success']) {
-                // Set installation flag
-                $this->setInstallationFlag(true);
-                
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => $result['message'],
-                    'version' => $result['version']
-                ]);
-            } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'error' => $result['message']
-                ]);
+
+            // Run migrations first
+            $migrateResult = $this->runMigrations();
+            if (!$migrateResult['success']) {
+                return $this->response->setJSON($migrateResult);
             }
-            
+
+            // Set installation flag
+            $this->setInstallationFlag(true);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Wablas Integration Module installed successfully',
+                'version' => $this->getModule()->getModuleInfo()['version']
+            ]);
+
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -100,28 +92,46 @@ class InstallController extends BaseController
      */
     public function uninstall()
     {
-        if (!$this->request->isAJAX()) {
-            return redirect()->to('wablas/install');
-        }
-        
         try {
-            $result = $this->getModule()->uninstall();
-            
-            if ($result['success']) {
-                // Remove installation flag
-                $this->setInstallationFlag(false);
-                
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => $result['message']
-                ]);
-            } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'error' => $result['message']
-                ]);
+            $db = \Config\Database::connect();
+
+            // Disable foreign key checks
+            $db->query('SET FOREIGN_KEY_CHECKS = 0');
+
+            // Drop all tables in reverse order (to handle dependencies)
+            $tables = [
+                'wablas_campaigns',
+                'wablas_groups',
+                'wablas_templates',
+                'wablas_logs',
+                'wablas_webhooks',
+                'wablas_auto_replies',
+                'wablas_schedules',
+                'wablas_contacts',
+                'wablas_messages',
+                'wablas_devices'
+            ];
+
+            $dropped = [];
+            foreach ($tables as $table) {
+                if ($db->tableExists($table)) {
+                    $db->query("DROP TABLE IF EXISTS `{$table}`");
+                    $dropped[] = $table;
+                }
             }
-            
+
+            // Re-enable foreign key checks
+            $db->query('SET FOREIGN_KEY_CHECKS = 1');
+
+            // Remove installation flag
+            $this->setInstallationFlag(false);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Wablas Integration Module uninstalled successfully',
+                'dropped_tables' => $dropped
+            ]);
+
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -135,16 +145,12 @@ class InstallController extends BaseController
      */
     public function checkRequirements()
     {
-        if ($this->request->isAJAX()) {
-            $requirements = $this->checkRequirements();
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'data' => $requirements
-            ]);
-        }
-        
-        return $this->checkSystemRequirements();
+        $requirements = $this->checkSystemRequirements();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $requirements
+        ]);
     }
     
     /**
@@ -152,22 +158,9 @@ class InstallController extends BaseController
      */
     public function migrate()
     {
-        if (!$this->request->isAJAX()) {
-            return redirect()->to('wablas/install');
-        }
-        
         try {
-            $migrate = Services::migrations();
-            $migrate->setNamespace('App\Modules\WablasIntegration');
-            
-            // Run migrations
-            $migrate->latest();
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Database migrations completed successfully'
-            ]);
-            
+            $result = $this->runMigrations();
+            return $this->response->setJSON($result);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -175,25 +168,100 @@ class InstallController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Run migrations helper
+     */
+    protected function runMigrations(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            // Get migration files
+            $migrationPath = APPPATH . 'Modules/WablasIntegration/Database/Migrations/';
+            $migrationFiles = glob($migrationPath . '*.php');
+
+            if (empty($migrationFiles)) {
+                return [
+                    'success' => false,
+                    'error' => 'No migration files found'
+                ];
+            }
+
+            sort($migrationFiles); // Execute in order
+            $executed = [];
+            $errors = [];
+
+            foreach ($migrationFiles as $file) {
+                try {
+                    $className = $this->getMigrationClassName($file);
+
+                    if ($className) {
+                        require_once $file;
+
+                        $fullClassName = "App\\Modules\\WablasIntegration\\Database\\Migrations\\{$className}";
+
+                        if (class_exists($fullClassName)) {
+                            $migration = new $fullClassName();
+                            $migration->up();
+                            $executed[] = basename($file);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = basename($file) . ': ' . $e->getMessage();
+                    // Continue with other migrations
+                }
+            }
+
+            if (!empty($errors) && empty($executed)) {
+                return [
+                    'success' => false,
+                    'error' => 'All migrations failed: ' . implode(', ', $errors)
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Database migrations completed' . (!empty($errors) ? ' with some errors' : ' successfully'),
+                'executed' => $executed,
+                'errors' => $errors
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Migration failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get migration class name from file
+     */
+    protected function getMigrationClassName(string $filePath): ?string
+    {
+        $content = file_get_contents($filePath);
+
+        // Extract class name from file content
+        if (preg_match('/class\s+(\w+)\s+extends/', $content, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
     
     /**
      * Seed database with sample data
      */
     public function seed()
     {
-        if (!$this->request->isAJAX()) {
-            return redirect()->to('wablas/install');
-        }
-        
         try {
-            $seeder = \Config\Database::seeder();
-            $seeder->call('WablasIntegrationSeeder');
-            
+            // For now, just return success since we don't have seeders yet
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Sample data seeded successfully'
+                'message' => 'Sample data seeding completed (no seeders configured yet)'
             ]);
-            
+
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,

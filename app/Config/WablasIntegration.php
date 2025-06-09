@@ -20,6 +20,16 @@ class WablasIntegration extends BaseConfig
         'verify_ssl' => false,
         'max_file_size' => 2048, // KB (2MB as per Wablas limit)
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Load environment variables
+        $this->wablas['base_url'] = env('WABLAS_BASE_URL', 'https://wablas.com');
+        $this->wablas['token'] = env('WABLAS_TOKEN', '');
+        $this->wablas['secret_key'] = env('WABLAS_SECRET_KEY', '');
+    }
     
     /**
      * Webhook Configuration

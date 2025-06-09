@@ -189,10 +189,14 @@ $routes->group('wablas/public', ['namespace' => 'App\Modules\WablasIntegration\C
 // Installation routes (for module setup)
 $routes->group('wablas/install', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
     $routes->get('/', 'InstallController::index');
+    $routes->get('run', 'InstallController::install');
     $routes->post('run', 'InstallController::install');
+    $routes->get('uninstall', 'InstallController::uninstall');
     $routes->post('uninstall', 'InstallController::uninstall');
     $routes->get('check', 'InstallController::checkRequirements');
+    $routes->get('migrate', 'InstallController::migrate');
     $routes->post('migrate', 'InstallController::migrate');
+    $routes->get('seed', 'InstallController::seed');
     $routes->post('seed', 'InstallController::seed');
 });
 
