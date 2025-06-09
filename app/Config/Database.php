@@ -158,6 +158,39 @@ class Database extends Config
     //    ];
 
     /**
+     * Fingerspot machine database connection (fin_pro)
+     * Used for importing attendance data from fingerspot machines
+     *
+     * @var array<string, mixed>
+     */
+    public array $fin_pro = [
+        'DSN'          => '',
+        'hostname'     => 'localhost',
+        'username'     => '',
+        'password'     => '',
+        'database'     => 'fin_pro',
+        'DBDriver'     => 'MySQLi',
+        'DBPrefix'     => '',
+        'pConnect'     => false,
+        'DBDebug'      => true,
+        'charset'      => 'latin1',
+        'DBCollat'     => 'latin1_swedish_ci',
+        'swapPre'      => '',
+        'encrypt'      => false,
+        'compress'     => false,
+        'strictOn'     => false,
+        'failover'     => [],
+        'port'         => 3306,
+        'numberNative' => false,
+        'foundRows'    => false,
+        'dateFormat'   => [
+            'date'     => 'Y-m-d',
+            'datetime' => 'Y-m-d H:i:s',
+            'time'     => 'H:i:s',
+        ],
+    ];
+
+    /**
      * This database connection is used when running PHPUnit database tests.
      *
      * @var array<string, mixed>
@@ -176,7 +209,7 @@ class Database extends Config
         'DBCollat'    => '',
         'swapPre'     => '',
         'encrypt'     => false,
-        'compress'    => false,
+        'compress'     => false,
         'strictOn'    => false,
         'failover'    => [],
         'port'        => 3306,

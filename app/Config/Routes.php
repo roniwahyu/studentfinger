@@ -10,6 +10,11 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'HomeController::index');
 $routes->get('home', 'HomeController::index');
 
+// Load module routes
+if (file_exists(APPPATH . 'Modules/FingerprintBridge/Config/Routes.php')) {
+    require_once APPPATH . 'Modules/FingerprintBridge/Config/Routes.php';
+}
+
 // Student Management routes
 $routes->group('students', function($routes) {
     $routes->get('/', 'StudentsController::index');
