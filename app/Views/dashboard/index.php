@@ -120,6 +120,18 @@
                                 <small>View Reports</small>
                             </a>
                         </div>
+                        <div class="col-6 mb-3">
+                            <a href="<?= base_url('classroom-notifications') ?>" class="btn btn-outline-success btn-block">
+                                <i class="fas fa-bell"></i><br>
+                                <small>Notifications</small>
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="<?= base_url('wablas-frontend') ?>" class="btn btn-outline-info btn-block">
+                                <i class="fab fa-whatsapp"></i><br>
+                                <small>WhatsApp</small>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
