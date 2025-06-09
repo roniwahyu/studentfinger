@@ -380,4 +380,64 @@ class WablasMessageModel extends Model
         
         return $data;
     }
+
+    /**
+     * Get daily statistics for analytics
+     */
+    public function getDailyStats(int $days = 30): array
+    {
+        $startDate = date('Y-m-d', strtotime("-{$days} days"));
+
+        return $this->select('DATE(created_at) as date, COUNT(*) as total,
+                             SUM(CASE WHEN status = "sent" THEN 1 ELSE 0 END) as sent,
+                             SUM(CASE WHEN status = "delivered" THEN 1 ELSE 0 END) as delivered,
+                             SUM(CASE WHEN status = "failed" THEN 1 ELSE 0 END) as failed')
+                   ->where('DATE(created_at) >=', $startDate)
+                   ->where('deleted_at', null)
+                   ->groupBy('DATE(created_at)')
+                   ->orderBy('date', 'ASC')
+                   ->findAll();
+    }
+
+    /**
+     * Get message type statistics
+     */
+    public function getMessageTypeStats(): array
+    {
+        return $this->select('message_type, COUNT(*) as count')
+                   ->where('deleted_at', null)
+                   ->groupBy('message_type')
+                   ->findAll();
+    }
+
+    /**
+     * Get success rate statistics
+     */
+    public function getSuccessRateStats(): array
+    {
+        $total = $this->where('deleted_at', null)->countAllResults();
+        $successful = $this->whereIn('status', ['sent', 'delivered', 'read'])
+                          ->where('deleted_at', null)
+                          ->countAllResults();
+
+        return [
+            'total' => $total,
+            'successful' => $successful,
+            'success_rate' => $total > 0 ? round(($successful / $total) * 100, 2) : 0
+        ];
+    }
+
+    /**
+     * Get peak hours statistics
+     */
+    public function getPeakHoursStats(): array
+    {
+        return $this->select('HOUR(created_at) as hour, COUNT(*) as count')
+                   ->where('created_at >=', date('Y-m-d H:i:s', strtotime('-7 days')))
+                   ->where('deleted_at', null)
+                   ->groupBy('HOUR(created_at)')
+                   ->orderBy('count', 'DESC')
+                   ->limit(5)
+                   ->findAll();
+    }
 }

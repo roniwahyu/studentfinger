@@ -218,7 +218,7 @@ class AttendanceModel extends Model
      */
     public function getAttendanceByDevice($serialNumber, $dateFrom = null, $dateTo = null)
     {
-        $builder = $this->where('serialnumber', $serialNumber);
+        $builder = $this->where('sn', $serialNumber);
 
         if ($dateFrom) {
             $builder->where('DATE(scan_date) >=', $dateFrom);
@@ -276,5 +276,196 @@ class AttendanceModel extends Model
             ->countAllResults();
 
         return $summary;
+    }
+
+    /**
+     * Get weekly attendance summary
+     */
+    public function getWeeklySummary()
+    {
+        $weekStart = date('Y-m-d', strtotime('monday this week'));
+        $weekEnd = date('Y-m-d', strtotime('sunday this week'));
+
+        $stats = $this->db->table($this->table)
+            ->select('inoutmode, COUNT(*) as count')
+            ->where('DATE(scan_date) >=', $weekStart)
+            ->where('DATE(scan_date) <=', $weekEnd)
+            ->groupBy('inoutmode')
+            ->get()
+            ->getResultArray();
+
+        $summary = [
+            'check_in' => 0,
+            'check_out' => 0,
+            'break_out' => 0,
+            'break_in' => 0,
+            'total' => 0,
+            'unique_users' => 0,
+            'week_start' => $weekStart,
+            'week_end' => $weekEnd
+        ];
+
+        foreach ($stats as $stat) {
+            $summary['total'] += $stat['count'];
+            switch ($stat['inoutmode']) {
+                case 0:
+                case 1:
+                    $summary['check_in'] += $stat['count'];
+                    break;
+                case 2:
+                    $summary['check_out'] += $stat['count'];
+                    break;
+                case 3:
+                    $summary['break_out'] += $stat['count'];
+                    break;
+                case 4:
+                    $summary['break_in'] += $stat['count'];
+                    break;
+            }
+        }
+
+        // Get unique users for this week
+        $summary['unique_users'] = $this->db->table($this->table)
+            ->select('pin')
+            ->where('DATE(scan_date) >=', $weekStart)
+            ->where('DATE(scan_date) <=', $weekEnd)
+            ->groupBy('pin')
+            ->countAllResults();
+
+        return $summary;
+    }
+
+    /**
+     * Get monthly attendance summary
+     */
+    public function getMonthlySummary()
+    {
+        $monthStart = date('Y-m-01');
+        $monthEnd = date('Y-m-t');
+
+        $stats = $this->db->table($this->table)
+            ->select('inoutmode, COUNT(*) as count')
+            ->where('DATE(scan_date) >=', $monthStart)
+            ->where('DATE(scan_date) <=', $monthEnd)
+            ->groupBy('inoutmode')
+            ->get()
+            ->getResultArray();
+
+        $summary = [
+            'check_in' => 0,
+            'check_out' => 0,
+            'break_out' => 0,
+            'break_in' => 0,
+            'total' => 0,
+            'unique_users' => 0,
+            'month_start' => $monthStart,
+            'month_end' => $monthEnd
+        ];
+
+        foreach ($stats as $stat) {
+            $summary['total'] += $stat['count'];
+            switch ($stat['inoutmode']) {
+                case 0:
+                case 1:
+                    $summary['check_in'] += $stat['count'];
+                    break;
+                case 2:
+                    $summary['check_out'] += $stat['count'];
+                    break;
+                case 3:
+                    $summary['break_out'] += $stat['count'];
+                    break;
+                case 4:
+                    $summary['break_in'] += $stat['count'];
+                    break;
+            }
+        }
+
+        // Get unique users for this month
+        $summary['unique_users'] = $this->db->table($this->table)
+            ->select('pin')
+            ->where('DATE(scan_date) >=', $monthStart)
+            ->where('DATE(scan_date) <=', $monthEnd)
+            ->groupBy('pin')
+            ->countAllResults();
+
+        return $summary;
+    }
+
+    /**
+     * Get attendance trends for analytics
+     */
+    public function getAttendanceTrends($days = 30)
+    {
+        $startDate = date('Y-m-d', strtotime("-{$days} days"));
+
+        return $this->db->table($this->table)
+            ->select('DATE(scan_date) as date, COUNT(*) as total_records, COUNT(DISTINCT pin) as unique_users')
+            ->where('DATE(scan_date) >=', $startDate)
+            ->groupBy('DATE(scan_date)')
+            ->orderBy('date', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Get present students today using FingerSpot data
+     */
+    public function getPresentStudentsToday()
+    {
+        return $this->db->table($this->table)
+            ->select('att_log.pin, students.student_id, students.firstname, students.lastname')
+            ->join('students', 'students.rfid = att_log.pin', 'left')
+            ->where('DATE(scan_date)', date('Y-m-d'))
+            ->whereIn('inoutmode', [0, 1]) // Check in modes
+            ->groupBy('att_log.pin')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Get late students today
+     */
+    public function getLateStudentsToday($lateThreshold = '08:00:00')
+    {
+        return $this->db->table($this->table)
+            ->select('att_log.pin, students.student_id, students.firstname, students.lastname, MIN(scan_date) as arrival_time')
+            ->join('students', 'students.rfid = att_log.pin', 'left')
+            ->where('DATE(scan_date)', date('Y-m-d'))
+            ->whereIn('inoutmode', [0, 1]) // Check in modes
+            ->groupBy('att_log.pin')
+            ->having('TIME(arrival_time) >', $lateThreshold)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Import FingerSpot data
+     */
+    public function importFingerspotData($data)
+    {
+        try {
+            // Validate required fields
+            $requiredFields = ['sn', 'scan_date', 'pin', 'verifymode'];
+
+            foreach ($data as $record) {
+                foreach ($requiredFields as $field) {
+                    if (!isset($record[$field])) {
+                        throw new \Exception("Missing required field: {$field}");
+                    }
+                }
+
+                // Set default values for optional fields
+                $record['inoutmode'] = $record['inoutmode'] ?? 1;
+                $record['reserved'] = $record['reserved'] ?? 0;
+                $record['work_code'] = $record['work_code'] ?? 0;
+                $record['att_id'] = $record['att_id'] ?? '0';
+            }
+
+            return $this->insertBatch($data);
+        } catch (\Exception $e) {
+            log_message('error', 'FingerSpot import failed: ' . $e->getMessage());
+            return false;
+        }
     }
 }

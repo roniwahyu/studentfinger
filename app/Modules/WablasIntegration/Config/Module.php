@@ -13,7 +13,8 @@ return [
     
     // API Configuration
     'wablas' => [
-        'base_url' => 'https://wablas.com',
+        // 'base_url' => 'https://wablas.com',
+        'base_url' => env('WABLAS_BASE_URL', ''),
         'token' => env('WABLAS_TOKEN', ''),
         'secret_key' => env('WABLAS_SECRET_KEY', ''),
         'timeout' => 30,
