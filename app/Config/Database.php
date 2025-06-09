@@ -160,15 +160,16 @@ class Database extends Config
     /**
      * Fingerspot machine database connection (fin_pro)
      * Used for importing attendance data from fingerspot machines
+     * Configuration loaded from .env file
      *
      * @var array<string, mixed>
      */
     public array $fin_pro = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
+        'hostname'     => '',
         'username'     => '',
         'password'     => '',
-        'database'     => 'fin_pro',
+        'database'     => '',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,
@@ -225,6 +226,15 @@ class Database extends Config
     public function __construct()
     {
         parent::__construct();
+
+        // Load fin_pro database configuration from .env
+        $this->fin_pro['hostname'] = env('FINPRO_DB_HOST', 'localhost');
+        $this->fin_pro['username'] = env('FINPRO_DB_USERNAME', 'root');
+        $this->fin_pro['password'] = env('FINPRO_DB_PASSWORD', '');
+        $this->fin_pro['database'] = env('FINPRO_DB_DATABASE', 'fin_pro');
+        $this->fin_pro['port'] = (int) env('FINPRO_DB_PORT', 3306);
+        $this->fin_pro['charset'] = env('FINPRO_DB_CHARSET', 'latin1');
+        $this->fin_pro['DBCollat'] = env('FINPRO_DB_COLLATION', 'latin1_swedish_ci');
 
         // Ensure that we always set the database group to 'tests' if
         // we are currently running an automated test suite, so that

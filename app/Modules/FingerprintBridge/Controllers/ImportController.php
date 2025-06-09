@@ -24,6 +24,9 @@ class ImportController extends BaseController
         $this->importService = new FingerprintImportService();
         $this->importLogModel = new ImportLogModel();
         $this->pinMappingModel = new StudentPinMappingModel();
+
+        // Load helpers
+        helper(['form', 'url']);
     }
     
     /**
@@ -147,10 +150,107 @@ class ImportController extends BaseController
     {
         $data = [
             'title' => 'Import Settings',
-            'connection_test' => $this->importService->testFinProConnection()
+            'connection_test' => $this->importService->testFinProConnection(),
+            'current_config' => $this->getCurrentFinProConfig(),
+            'module_settings' => $this->getModuleSettings()
         ];
-        
+
         return view('App\Modules\FingerprintBridge\Views\settings', $data);
+    }
+
+    /**
+     * Save settings
+     */
+    public function saveSettings()
+    {
+        $validation = \Config\Services::validation();
+
+        $rules = [
+            'finpro_host' => 'required|max_length[255]',
+            'finpro_username' => 'required|max_length[100]',
+            'finpro_password' => 'permit_empty|max_length[100]',
+            'finpro_database' => 'required|max_length[100]',
+            'finpro_port' => 'required|integer|greater_than[0]',
+            'finpro_charset' => 'required|max_length[50]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+
+        // Update .env file
+        $result = $this->updateEnvConfig([
+            'FINPRO_DB_HOST' => $this->request->getPost('finpro_host'),
+            'FINPRO_DB_USERNAME' => $this->request->getPost('finpro_username'),
+            'FINPRO_DB_PASSWORD' => $this->request->getPost('finpro_password'),
+            'FINPRO_DB_DATABASE' => $this->request->getPost('finpro_database'),
+            'FINPRO_DB_PORT' => $this->request->getPost('finpro_port'),
+            'FINPRO_DB_CHARSET' => $this->request->getPost('finpro_charset'),
+            'FINPRO_DB_COLLATION' => $this->request->getPost('finpro_collation')
+        ]);
+
+        if ($result) {
+            return redirect()->back()->with('success', 'Settings saved successfully. Please refresh to test the new connection.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to save settings. Check file permissions.');
+        }
+    }
+
+    /**
+     * Get current FinPro configuration
+     */
+    protected function getCurrentFinProConfig(): array
+    {
+        return [
+            'host' => env('FINPRO_DB_HOST', 'localhost'),
+            'username' => env('FINPRO_DB_USERNAME', 'root'),
+            'password' => env('FINPRO_DB_PASSWORD', ''),
+            'database' => env('FINPRO_DB_DATABASE', 'fin_pro'),
+            'port' => env('FINPRO_DB_PORT', 3306),
+            'charset' => env('FINPRO_DB_CHARSET', 'latin1'),
+            'collation' => env('FINPRO_DB_COLLATION', 'latin1_swedish_ci')
+        ];
+    }
+
+    /**
+     * Get module settings
+     */
+    protected function getModuleSettings(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $result = $db->query("SELECT * FROM fingerprint_import_settings ORDER BY setting_key");
+            return $result->getResultArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Update .env configuration
+     */
+    protected function updateEnvConfig(array $config): bool
+    {
+        try {
+            $envPath = ROOTPATH . '.env';
+            $envContent = file_get_contents($envPath);
+
+            foreach ($config as $key => $value) {
+                $pattern = "/^{$key}=.*$/m";
+                $replacement = "{$key}={$value}";
+
+                if (preg_match($pattern, $envContent)) {
+                    $envContent = preg_replace($pattern, $replacement, $envContent);
+                } else {
+                    // Add new configuration
+                    $envContent .= "\n{$replacement}";
+                }
+            }
+
+            return file_put_contents($envPath, $envContent) !== false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
     
     /**

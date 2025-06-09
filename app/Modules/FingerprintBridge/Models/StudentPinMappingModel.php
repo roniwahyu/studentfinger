@@ -233,20 +233,20 @@ class StudentPinMappingModel extends Model
     {
         try {
             $query = $this->db->query("
-                SELECT 
+                SELECT
                     COUNT(*) as total_mappings,
                     COUNT(CASE WHEN is_active = 1 THEN 1 END) as active_mappings,
                     COUNT(CASE WHEN is_active = 0 THEN 1 END) as inactive_mappings,
                     (SELECT COUNT(DISTINCT pin) FROM att_log WHERE deleted_at IS NULL) as total_pins_in_logs,
-                    (SELECT COUNT(DISTINCT al.pin) 
-                     FROM att_log al 
+                    (SELECT COUNT(DISTINCT al.pin)
+                     FROM att_log al
                      LEFT JOIN student_pin_mapping spm ON al.pin = spm.pin AND spm.deleted_at IS NULL
                      WHERE spm.pin IS NULL AND al.deleted_at IS NULL) as unmapped_pins,
-                    (SELECT COUNT(*) 
-                     FROM students s 
-                     LEFT JOIN student_pin_mapping spm ON s.id = spm.student_id AND spm.deleted_at IS NULL
+                    (SELECT COUNT(*)
+                     FROM students s
+                     LEFT JOIN student_pin_mapping spm ON s.student_id = spm.student_id AND spm.deleted_at IS NULL
                      WHERE spm.student_id IS NULL AND s.deleted_at IS NULL) as students_without_pin
-                FROM student_pin_mapping 
+                FROM student_pin_mapping
                 WHERE deleted_at IS NULL
             ");
             
