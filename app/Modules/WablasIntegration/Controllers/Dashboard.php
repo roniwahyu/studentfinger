@@ -2,7 +2,7 @@
 
 namespace App\Modules\WablasIntegration\Controllers;
 
-use App\Libraries\BaseController;
+use App\Controllers\BaseController;
 use App\Modules\WablasIntegration\Services\WablasService;
 use App\Modules\WablasIntegration\Models\WablasDeviceModel;
 use App\Modules\WablasIntegration\Models\WablasMessageModel;
@@ -22,9 +22,9 @@ class Dashboard extends BaseController
     protected WablasScheduleModel $scheduleModel;
     protected WablasLogModel $logModel;
     
-    public function __construct()
+    public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
     {
-        parent::__construct();
+        parent::initController($request, $response, $logger);
         $this->wablasService = new WablasService();
         $this->deviceModel = new WablasDeviceModel();
         $this->messageModel = new WablasMessageModel();

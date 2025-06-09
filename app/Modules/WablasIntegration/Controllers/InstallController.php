@@ -2,7 +2,7 @@
 
 namespace App\Modules\WablasIntegration\Controllers;
 
-use App\Libraries\BaseController;
+use App\Controllers\BaseController;
 use App\Modules\WablasIntegration\WablasIntegrationModule;
 use CodeIgniter\Config\Services;
 
@@ -11,12 +11,17 @@ use CodeIgniter\Config\Services;
  */
 class InstallController extends BaseController
 {
-    protected WablasIntegrationModule $module;
-    
-    public function __construct()
+    protected ?WablasIntegrationModule $module = null;
+
+    /**
+     * Get module instance (lazy loading)
+     */
+    protected function getModule(): WablasIntegrationModule
     {
-        parent::__construct();
-        $this->module = new WablasIntegrationModule();
+        if ($this->module === null) {
+            $this->module = new WablasIntegrationModule();
+        }
+        return $this->module;
     }
     
     /**
@@ -26,12 +31,17 @@ class InstallController extends BaseController
     {
         $data = [
             'title' => 'Wablas Integration - Installation',
-            'module_info' => $this->module->getModuleInfo(),
+            'module_info' => $this->getModule()->getModuleInfo(),
             'requirements' => $this->checkRequirements(),
             'is_installed' => $this->isModuleInstalled()
         ];
         
-        return view('Modules/WablasIntegration/Views/install/index', $data);
+        // For now, return JSON response until view system is properly configured
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Wablas Integration Module Installation Page',
+            'data' => $data
+        ]);
     }
     
     /**
@@ -59,7 +69,7 @@ class InstallController extends BaseController
             }
             
             // Install the module
-            $result = $this->module->install();
+            $result = $this->getModule()->install();
             
             if ($result['success']) {
                 // Set installation flag
@@ -95,7 +105,7 @@ class InstallController extends BaseController
         }
         
         try {
-            $result = $this->module->uninstall();
+            $result = $this->getModule()->uninstall();
             
             if ($result['success']) {
                 // Remove installation flag
@@ -339,7 +349,7 @@ class InstallController extends BaseController
         if ($installed) {
             $data = [
                 'installed_at' => date('Y-m-d H:i:s'),
-                'version' => $this->module->getModuleInfo()['version'],
+                'version' => $this->getModule()->getModuleInfo()['version'],
                 'php_version' => PHP_VERSION,
                 'ci_version' => \CodeIgniter\CodeIgniter::CI_VERSION
             ];
@@ -369,7 +379,7 @@ class InstallController extends BaseController
             'requirements_met' => !array_filter($requirements, function($req) {
                 return !$req['status'];
             }),
-            'module_info' => $this->module->getModuleInfo()
+            'module_info' => $this->getModule()->getModuleInfo()
         ];
         
         if ($isInstalled) {

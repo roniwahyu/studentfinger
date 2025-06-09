@@ -181,7 +181,7 @@ class WablasIntegrationModule extends BaseModule
             $config = $this->getConfig('wablas', []);
             return new \App\Libraries\WablasApi($config);
         });
-        
+
         // Register Wablas service
         \Config\Services::set('wablasService', function() {
             return new \App\Modules\WablasIntegration\Services\WablasService();

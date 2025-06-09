@@ -141,7 +141,7 @@ $routes->group('wablas', ['namespace' => 'App\Modules\WablasIntegration\Controll
 
 // API routes (for external integrations)
 $routes->group('api/wablas', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
-    
+
     // Authentication required routes
     $routes->group('', ['filter' => 'api_auth'], function($routes) {
         
@@ -194,4 +194,25 @@ $routes->group('wablas/install', ['namespace' => 'App\Modules\WablasIntegration\
     $routes->get('check', 'InstallController::checkRequirements');
     $routes->post('migrate', 'InstallController::migrate');
     $routes->post('seed', 'InstallController::seed');
+});
+
+// Test routes (for module testing)
+$routes->group('wablas/test', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
+    $routes->get('/', 'TestController::index');
+    $routes->get('view', 'TestController::view');
+    $routes->get('api', 'TestController::testApi');
+    $routes->get('database', 'TestController::testDatabase');
+});
+
+// Example routes (for demonstrations)
+$routes->group('wablas/examples', ['namespace' => 'App\Modules\WablasIntegration\Controllers'], function($routes) {
+    $routes->get('/', 'ExampleController::index');
+    $routes->post('send-simple', 'ExampleController::sendSimpleMessage');
+    $routes->post('send-image', 'ExampleController::sendImageMessage');
+    $routes->post('send-bulk', 'ExampleController::sendBulkMessages');
+    $routes->post('schedule', 'ExampleController::scheduleMessage');
+    $routes->post('api-direct', 'ExampleController::useApiDirectly');
+    $routes->post('manage-contacts', 'ExampleController::manageContacts');
+    $routes->post('process-schedules', 'ExampleController::processScheduledMessages');
+    $routes->get('statistics', 'ExampleController::getStatistics');
 });
