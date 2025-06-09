@@ -90,8 +90,8 @@ class StudentPinMappingModel extends Model
     public function getMappingsWithStudentInfo(int $limit = null, int $offset = 0): array
     {
         $builder = $this->builder();
-        $builder->select('student_pin_mapping.*, students.firstname, students.lastname, students.student_id as student_number, students.email')
-                ->join('students', 'students.id = student_pin_mapping.student_id', 'left')
+        $builder->select('student_pin_mapping.*, students.firstname, students.lastname, students.admission_no as student_number, students.email')
+                ->join('students', 'students.student_id = student_pin_mapping.student_id', 'left')
                 ->orderBy('student_pin_mapping.created_at', 'DESC');
         
         if ($limit !== null) {
@@ -131,9 +131,9 @@ class StudentPinMappingModel extends Model
     {
         try {
             $query = $this->db->query("
-                SELECT s.id, s.student_id, s.firstname, s.lastname, s.email, s.rfid
+                SELECT s.student_id, s.student_id as id, s.firstname, s.lastname, s.email, s.rfid
                 FROM students s
-                LEFT JOIN student_pin_mapping spm ON s.id = spm.student_id AND spm.deleted_at IS NULL
+                LEFT JOIN student_pin_mapping spm ON s.student_id = spm.student_id AND spm.deleted_at IS NULL
                 WHERE spm.student_id IS NULL
                 AND s.deleted_at IS NULL
                 ORDER BY s.firstname, s.lastname
@@ -155,7 +155,7 @@ class StudentPinMappingModel extends Model
             // Map students who have RFID cards that match PINs in attendance logs
             $query = $this->db->query("
                 INSERT INTO student_pin_mapping (pin, student_id, rfid_card, is_active, notes, created_at, updated_at)
-                SELECT DISTINCT al.pin, s.id, s.rfid, 1, 'Auto-mapped from RFID', NOW(), NOW()
+                SELECT DISTINCT al.pin, s.student_id, s.rfid, 1, 'Auto-mapped from RFID', NOW(), NOW()
                 FROM att_log al
                 INNER JOIN students s ON al.pin = s.rfid
                 LEFT JOIN student_pin_mapping spm ON al.pin = spm.pin AND spm.deleted_at IS NULL

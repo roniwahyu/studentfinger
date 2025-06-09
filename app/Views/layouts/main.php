@@ -85,6 +85,34 @@
                             </a>
                         </li>
 
+                        <!-- Fingerprint Integration -->
+                        <?php
+                        helper('fingerprint');
+                        if (is_fingerprint_module_available()):
+                            $fingerprintStats = get_fingerprint_summary_stats();
+                            $runningImports = $fingerprintStats['running_imports'] ?? 0;
+                            $unmappedPins = $fingerprintStats['unmapped_pins'] ?? 0;
+                        ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('fingerprint-bridge') ?>" style="background: linear-gradient(135deg, #6f42c1 0%, #007bff 100%); color: white; border-radius: 8px; margin: 4px 0;">
+                                <i class="fas fa-fingerprint me-2"></i> Import Finger
+                                <?php if ($runningImports > 0): ?>
+                                    <span class="badge bg-warning text-dark ms-2"><?= $runningImports ?></span>
+                                <?php elseif ($unmappedPins > 0): ?>
+                                    <span class="badge bg-info ms-2"><?= $unmappedPins ?></span>
+                                <?php endif; ?>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <!-- Classroom Notifications -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= base_url('classroom-notifications') ?>" style="background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; border-radius: 8px; margin: 4px 0;">
+                                <i class="fas fa-bell me-2"></i> Class Notifications
+                                <span class="badge bg-light text-dark ms-2">NEW</span>
+                            </a>
+                        </li>
+
                         <!-- WhatsApp Integration -->
                         <li class="nav-item">
                             <a class="nav-link" href="<?= base_url('wablas-frontend') ?>" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: white; border-radius: 8px; margin: 4px 0;">
@@ -119,6 +147,16 @@
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav ms-auto">
                                 <!-- Quick Actions -->
+                                <?php
+                                helper('fingerprint');
+                                if (is_fingerprint_module_available()):
+                                ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?= base_url('fingerprint-bridge') ?>" title="Fingerprint Import">
+                                        <i class="fas fa-fingerprint text-purple"></i>
+                                    </a>
+                                </li>
+                                <?php endif; ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="<?= base_url('wablas-frontend') ?>" title="WhatsApp Integration">
                                         <i class="fab fa-whatsapp text-success"></i>
