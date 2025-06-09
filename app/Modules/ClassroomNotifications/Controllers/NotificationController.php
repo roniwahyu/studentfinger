@@ -493,4 +493,109 @@ class NotificationController extends BaseController
         
         return 'Unknown';
     }
+
+    /**
+     * Test WABLAS connection (AJAX)
+     */
+    public function testConnection()
+    {
+        $baseUrl = $this->request->getPost('base_url');
+        $token = $this->request->getPost('token');
+        $secretKey = $this->request->getPost('secret_key');
+        $testPhone = $this->request->getPost('test_phone');
+
+        if (empty($baseUrl) || empty($token) || empty($secretKey) || empty($testPhone)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'All fields are required for testing'
+            ]);
+        }
+
+        try {
+            // Clean phone number
+            $cleanPhone = preg_replace('/[^0-9]/', '', $testPhone);
+            if (substr($cleanPhone, 0, 1) === '0') {
+                $cleanPhone = '62' . substr($cleanPhone, 1);
+            } elseif (substr($cleanPhone, 0, 2) !== '62') {
+                $cleanPhone = '62' . $cleanPhone;
+            }
+
+            $url = rtrim($baseUrl, '/') . '/api/send-message';
+            $authorization = $token . '.' . $secretKey;
+
+            $testMessage = "🧪 *CONNECTION TEST*\n\nHalo! Ini adalah test koneksi WABLAS dari sistem Student Finger.\n\n✅ Konfigurasi: Berhasil\n✅ Koneksi: Terhubung\n✅ Pengiriman: Sukses\n\nSistem siap digunakan!\n\n*Student Finger School*\n\n" . date('d/m/Y H:i:s');
+
+            $data = [
+                'phone' => $cleanPhone,
+                'message' => $testMessage,
+                'isGroup' => false
+            ];
+
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Authorization: ' . $authorization
+                ],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_FOLLOWLOCATION => true
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($error) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'CURL Error: ' . $error
+                ]);
+            }
+
+            if ($httpCode === 200) {
+                $responseData = json_decode($response, true);
+
+                if ($responseData && isset($responseData['status']) && $responseData['status'] === true) {
+                    // Update connection status
+                    $connectionModel = new \App\Modules\ClassroomNotifications\Models\WhatsAppConnectionModel();
+                    $connectionModel->updateStatus(
+                        \App\Modules\ClassroomNotifications\Models\WhatsAppConnectionModel::STATUS_CONNECTED,
+                        [
+                            'device_id' => $responseData['data']['device_id'] ?? null,
+                            'quota_remaining' => $responseData['data']['quota'] ?? null,
+                            'api_response' => $responseData
+                        ]
+                    );
+
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Connection test successful',
+                        'data' => $responseData
+                    ]);
+                } else {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'API returned error: ' . ($responseData['message'] ?? 'Unknown error')
+                    ]);
+                }
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'HTTP Error: ' . $httpCode
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Exception: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
