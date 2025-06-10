@@ -196,7 +196,7 @@ class AttendanceModel extends Model
     {
         $builder = $this->db->table($this->table)
             ->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
-            ->join('students', 'students.id = att_log.student_id', 'left')
+            ->join('students', 'students.student_id = att_log.student_id', 'left')
             ->where('YEAR(att_log.scan_date)', $year)
             ->where('MONTH(att_log.scan_date)', $month);
 

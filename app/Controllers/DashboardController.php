@@ -35,7 +35,10 @@ class DashboardController extends BaseController
             // Get recent attendance from att_log
             $recentLogs = $this->attendanceModel->getRecentAttendance(10);
             $data['recentAttendance'] = [];
-
+            
+            // Log the raw data for debugging
+            log_message('debug', 'Recent attendance logs: ' . json_encode($recentLogs));
+            
             foreach ($recentLogs as $log) {
                 $data['recentAttendance'][] = [
                     'student_id' => $log['student_code'] ?? $log['pin'],
@@ -45,6 +48,9 @@ class DashboardController extends BaseController
                     'verify_mode' => $this->attendanceModel->getVerifyModeLabel($log['verifymode'] ?? 0)
                 ];
             }
+            
+            // Log the processed data for debugging
+            log_message('debug', 'Processed attendance data: ' . json_encode($data['recentAttendance']));
         } catch (\Exception $e) {
             // Handle database errors gracefully
             log_message('error', 'Dashboard error: ' . $e->getMessage());

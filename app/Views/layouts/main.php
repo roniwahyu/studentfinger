@@ -235,14 +235,25 @@
     <!-- Initialize Components -->
     <script>
         $(document).ready(function() {
-            // Initialize DataTables
-            $('.datatable').DataTable({
-                responsive: true,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "Search..."
-                }
-            });
+            // Initialize DataTables with error handling
+            try {
+                $('.datatable').each(function() {
+                    if(!$.fn.DataTable.isDataTable(this)) {
+                        $(this).DataTable({
+                            responsive: true,
+                            language: {
+                                search: "_INPUT_",
+                                searchPlaceholder: "Search..."
+                            },
+                            initComplete: function() {
+                                console.log('DataTable initialized successfully');
+                            }
+                        });
+                    }
+                });
+            } catch(e) {
+                console.error('Error initializing DataTables:', e);
+            }
 
             // Initialize Select2
             $('.select2').select2({
@@ -258,7 +269,6 @@
                     timer: 3000,
                     timerProgressBar: true
                 });
-
                 Toast.fire({
                     icon: type,
                     title: message
