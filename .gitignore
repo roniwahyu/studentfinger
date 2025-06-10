@@ -127,3 +127,4 @@ _modules/*
 /app/konsep/
 /tests/
 /wamd_apps/node_modules/
+/augment-vip/*

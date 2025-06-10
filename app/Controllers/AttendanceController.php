@@ -62,8 +62,8 @@ class AttendanceController extends BaseController
                 // Get recent attendance from att_log
                 $db = \Config\Database::connect();
                 $recentLogs = $db->table('att_log')
-                    ->select('att_log.*, students.name as student_name, students.student_id as student_code')
-                    ->join('students', 'students.pin = att_log.pin', 'left')
+                    ->select('att_log.*, CONCAT(students.firstname, " ", students.lastname) as student_name, students.student_id as student_code')
+                    ->join('students', 'students.student_id = att_log.student_id', 'left')
                     ->orderBy('att_log.scan_date', 'DESC')
                     ->limit(10)
                     ->get()
