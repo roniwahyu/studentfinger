@@ -44,18 +44,18 @@ class ClassModel extends Model
             ->join('sections', 'sections.class_id = classes.id', 'left')
             ->where('classes.deleted_at', null)
             ->groupBy('classes.id')
-            ->orderBy('classes.name', 'ASC')
+            ->orderBy('classes.class', 'ASC')
             ->get()
             ->getResultArray();
     }
     
     /**
-     * Get active classes
+     * Get active classes (all non-deleted classes since there's no status column)
      */
     public function getActiveClasses()
     {
-        return $this->where('status', 'Active')
-                   ->orderBy('name', 'ASC')
+        return $this->where('deleted_at', null)
+                   ->orderBy('class', 'ASC')
                    ->findAll();
     }
     

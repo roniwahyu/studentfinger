@@ -14,38 +14,39 @@ class HomeController extends BaseController
         $studentModel = new StudentModel();
         $attendanceModel = new AttendanceModel();
         $classModel = new ClassModel();
-        
+
         // Get dashboard statistics
         $data = [
-            'totalStudents' => $studentModel->where('status', 'active')->countAllResults(),
-            'totalClasses' => $classModel->where('status', 'active')->countAllResults(),
-            'presentToday' => $attendanceModel->where('date', date('Y-m-d'))
-                                            ->where('status', 'present')
+            'totalStudents' => $studentModel->where('status', 'Active')->countAllResults(),
+            'totalClasses' => $classModel->countAllResults(), // Remove status filter as classes table doesn't have status column
+            'presentToday' => $attendanceModel->where('DATE(scan_date)', date('Y-m-d'))
+                                            ->whereIn('inoutmode', [0, 1]) // Check-in modes
+                                            ->groupBy('pin')
                                             ->countAllResults(),
-            'absentToday' => $attendanceModel->where('date', date('Y-m-d'))
-                                           ->where('status', 'absent')
-                                           ->countAllResults(),
+            'totalAttendanceToday' => $attendanceModel->where('DATE(scan_date)', date('Y-m-d'))
+                                                    ->countAllResults(),
         ];
-        
+
+        // Calculate attendance statistics
+        $data['absentToday'] = max(0, $data['totalStudents'] - $data['presentToday']);
+
         // Calculate percentages
-        $totalStudentsToday = $data['presentToday'] + $data['absentToday'];
-        if ($totalStudentsToday > 0) {
-            $data['presentPercentage'] = round(($data['presentToday'] / $totalStudentsToday) * 100, 1);
-            $data['absentPercentage'] = round(($data['absentToday'] / $totalStudentsToday) * 100, 1);
+        if ($data['totalStudents'] > 0) {
+            $data['presentPercentage'] = round(($data['presentToday'] / $data['totalStudents']) * 100, 1);
+            $data['absentPercentage'] = round(($data['absentToday'] / $data['totalStudents']) * 100, 1);
         } else {
             $data['presentPercentage'] = 0;
             $data['absentPercentage'] = 0;
         }
-        
-        // Get recent attendance records
-        $data['recentAttendance'] = $attendanceModel->select('attendance.*, students.name as student_name, classes.name as class_name')
-                                                   ->join('students', 'students.id = attendance.student_id')
-                                                   ->join('classes', 'classes.id = students.class_id')
-                                                   ->where('attendance.date', date('Y-m-d'))
-                                                   ->orderBy('attendance.time_in', 'DESC')
+
+        // Get recent attendance records using the correct table structure
+        $data['recentAttendance'] = $attendanceModel->select('att_log.*, CONCAT(students.firstname, " ", students.lastname) as student_name, students.student_id as student_code')
+                                                   ->join('students', 'students.student_id = att_log.student_id', 'left')
+                                                   ->where('DATE(att_log.scan_date)', date('Y-m-d'))
+                                                   ->orderBy('att_log.scan_date', 'DESC')
                                                    ->limit(10)
                                                    ->findAll();
-        
+
         return view('welcome_message', $data);
     }
 }

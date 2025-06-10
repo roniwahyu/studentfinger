@@ -84,9 +84,31 @@
                 
                 <div class="col-md-6">
                     <div class="test-card">
-                        <h5><i class="fas fa-cog text-success me-2"></i>Simple Controller</h5>
+                        <h5><i class="fas fa-home text-success me-2"></i>Home Page</h5>
+                        <p class="text-muted">Test home page dashboard functionality</p>
+                        <a href="test_home_page.php" class="btn btn-success btn-test">
+                            <i class="fas fa-play me-1"></i>Run Test
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="test-card">
+                        <h5><i class="fas fa-cog text-info me-2"></i>Simple Controller</h5>
                         <p class="text-muted">Test basic controller functionality</p>
-                        <a href="test_simple.php" class="btn btn-success btn-test">
+                        <a href="test_simple.php" class="btn btn-info btn-test">
+                            <i class="fas fa-play me-1"></i>Run Test
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="test-card">
+                        <h5><i class="fas fa-route text-secondary me-2"></i>Route Testing</h5>
+                        <p class="text-muted">Test application routing configuration</p>
+                        <a href="simple_route_test.php" class="btn btn-secondary btn-test">
                             <i class="fas fa-play me-1"></i>Run Test
                         </a>
                     </div>
@@ -196,9 +218,9 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="test-card">
-                        <h5><i class="fas fa-route text-secondary me-2"></i>Route Testing</h5>
-                        <p class="text-muted">Test application routing configuration</p>
-                        <a href="simple_route_test.php" class="btn btn-secondary btn-test">
+                        <h5><i class="fas fa-tools text-secondary me-2"></i>Enhanced Tests</h5>
+                        <p class="text-muted">Additional specialized testing tools</p>
+                        <a href="test_enhanced_fingerprint_bridge.php" class="btn btn-secondary btn-test">
                             <i class="fas fa-play me-1"></i>Run Test
                         </a>
                     </div>

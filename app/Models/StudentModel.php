@@ -12,35 +12,21 @@ use CodeIgniter\Model;
 class StudentModel extends Model
 {
     protected $table = 'students';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'student_id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = true;
     protected $protectFields = true;
-    
+
     protected $allowedFields = [
-        'student_id',
-        'name',
+        'admission_no',
+        'firstname',
+        'lastname',
+        'mobileno',
         'email',
-        'phone',
-        'address',
-        'date_of_birth',
-        'gender',
-        'rfid_card',
-        'pin',
-        'parent_name',
-        'parent_phone',
-        'parent_email',
-        'emergency_contact',
-        'blood_group',
-        'medical_info',
-        'admission_date',
-        'class_id',
-        'section_id',
-        'session_id',
-        'status',
-        'notes',
-        'photo'
+        'father_phone',
+        'rfid',
+        'status'
     ];
     
     protected $useTimestamps = true;
