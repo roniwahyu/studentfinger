@@ -28,8 +28,7 @@ class UserLogController extends BaseController
         ];
 
         // Get user logs with pagination
-        $userLogsBuilder = $this->UserLogModel->getUserLogsWithFilters($filters);
-        $data['userlogs'] = $userLogsBuilder->paginate(20);
+        $data['userlogs'] = $this->UserLogModel->getUserLogsWithFiltersPaginated($filters, 20, 'default');
         $data['pager'] = $this->UserLogModel->pager;
         $data['filters'] = $filters;
 

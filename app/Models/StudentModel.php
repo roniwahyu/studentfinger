@@ -20,14 +20,27 @@ class StudentModel extends Model
     
     protected $allowedFields = [
         'student_id',
-        'admission_no',
-        'firstname',
-        'lastname',
-        'mobileno',
+        'name',
         'email',
-        'father_phone',
-        'rfid',
-        'status'
+        'phone',
+        'address',
+        'date_of_birth',
+        'gender',
+        'rfid_card',
+        'pin',
+        'parent_name',
+        'parent_phone',
+        'parent_email',
+        'emergency_contact',
+        'blood_group',
+        'medical_info',
+        'admission_date',
+        'class_id',
+        'section_id',
+        'session_id',
+        'status',
+        'notes',
+        'photo'
     ];
     
     protected $useTimestamps = true;
@@ -38,14 +51,18 @@ class StudentModel extends Model
     
     protected $validationRules = [
         'student_id' => 'required|is_unique[students.student_id,id,{id}]',
-        'admission_no' => 'permit_empty|max_length[50]',
-        'firstname' => 'required|min_length[2]|max_length[100]',
-        'lastname' => 'required|min_length[2]|max_length[100]',
+        'name' => 'required|min_length[3]|max_length[100]',
         'email' => 'permit_empty|valid_email|is_unique[students.email,id,{id}]',
-        'mobileno' => 'permit_empty|max_length[20]',
-        'rfid' => 'permit_empty|max_length[32]|is_unique[students.rfid,id,{id}]',
-        'father_phone' => 'permit_empty|max_length[20]',
-        'status' => 'permit_empty|in_list[0,1]'
+        'phone' => 'permit_empty|max_length[20]',
+        'date_of_birth' => 'permit_empty|valid_date[Y-m-d]',
+        'gender' => 'required|in_list[Male,Female,Other]',
+        'rfid_card' => 'permit_empty|max_length[50]|is_unique[students.rfid_card,id,{id}]',
+        'pin' => 'permit_empty|max_length[32]|is_unique[students.pin,id,{id}]',
+        'parent_phone' => 'permit_empty|max_length[20]',
+        'class_id' => 'required|integer',
+        'section_id' => 'required|integer',
+        'session_id' => 'required|integer',
+        'status' => 'permit_empty|in_list[Active,Inactive,Graduated,Transferred]'
     ];
     
     protected $validationMessages = [
@@ -53,19 +70,22 @@ class StudentModel extends Model
             'required' => 'Student ID is required',
             'is_unique' => 'Student ID already exists'
         ],
-        'firstname' => [
-            'required' => 'First name is required',
-            'min_length' => 'First name must be at least 2 characters'
-        ],
-        'lastname' => [
-            'required' => 'Last name is required',
-            'min_length' => 'Last name must be at least 2 characters'
+        'name' => [
+            'required' => 'Student name is required',
+            'min_length' => 'Student name must be at least 3 characters'
         ],
         'email' => [
-            'valid_email' => 'Please enter a valid email address'
+            'valid_email' => 'Please enter a valid email address',
+            'is_unique' => 'Email address already exists'
         ],
-        'rfid' => [
+        'gender' => [
+            'required' => 'Gender is required'
+        ],
+        'rfid_card' => [
             'is_unique' => 'RFID card already exists'
+        ],
+        'pin' => [
+            'is_unique' => 'PIN already exists'
         ]
     ];
     

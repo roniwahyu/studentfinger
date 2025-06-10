@@ -14,7 +14,8 @@ class SectionModel extends Model
     protected $protectFields = true;
     
     protected $allowedFields = [
-        'section'
+        'name',
+        'class_id'
     ];
     
     protected $useTimestamps = true;
@@ -24,11 +25,12 @@ class SectionModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'section' => 'required|min_length[1]|max_length[100]'
+        'name' => 'required|min_length[1]|max_length[100]',
+        'class_id' => 'permit_empty|integer'
     ];
-    
+
     protected $validationMessages = [
-        'section' => [
+        'name' => [
             'required' => 'Section name is required',
             'min_length' => 'Section name must be at least 1 character'
         ]

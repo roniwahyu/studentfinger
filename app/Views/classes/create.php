@@ -21,13 +21,25 @@
 
             <form action="<?= base_url('classes/create') ?>" method="post">
                 <?= csrf_field() ?>
-                
-                <!-- Add your form fields here -->
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="class" class="form-label">Class Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="class" name="class"
+                                   value="<?= old('class') ?>" placeholder="Enter class name (e.g., X, XI, XII)" required>
+                            <div class="form-text">Enter the class name or grade level</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Save
+                        <i class="fas fa-save me-2"></i>Save Class
                     </button>
+                    <a href="<?= base_url('classes') ?>" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
                 </div>
             </form>
         </div>

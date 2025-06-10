@@ -56,7 +56,7 @@ class UserLogModel extends Model
     public function getUserLogsWithFilters($filters = [])
     {
         $builder = $this->db->table($this->table);
-            
+
         // Apply filters
         if (!empty($filters['search'])) {
             $builder->groupStart()
@@ -65,28 +65,65 @@ class UserLogModel extends Model
                 ->orLike('log_note', $filters['search'])
                 ->groupEnd();
         }
-        
+
         if (!empty($filters['date_from'])) {
             $builder->where('DATE(log_date) >=', $filters['date_from']);
         }
-        
+
         if (!empty($filters['date_to'])) {
             $builder->where('DATE(log_date) <=', $filters['date_to']);
         }
-        
+
         if (!empty($filters['module'])) {
             $builder->where('module', $filters['module']);
         }
-        
+
         if (!empty($filters['tipe_log'])) {
             $builder->where('tipe_log', $filters['tipe_log']);
         }
-        
+
         if (!empty($filters['login_id'])) {
             $builder->where('login_id', $filters['login_id']);
         }
-        
+
         return $builder->orderBy('log_date', 'DESC');
+    }
+
+    /**
+     * Get paginated user logs with filters
+     */
+    public function getUserLogsWithFiltersPaginated($filters = [], $perPage = 20, $group = 'default')
+    {
+        // Apply filters to the model
+        if (!empty($filters['search'])) {
+            $this->groupStart()
+                ->like('login_id', $filters['search'])
+                ->orLike('nama_data', $filters['search'])
+                ->orLike('log_note', $filters['search'])
+                ->groupEnd();
+        }
+
+        if (!empty($filters['date_from'])) {
+            $this->where('DATE(log_date) >=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $this->where('DATE(log_date) <=', $filters['date_to']);
+        }
+
+        if (!empty($filters['module'])) {
+            $this->where('module', $filters['module']);
+        }
+
+        if (!empty($filters['tipe_log'])) {
+            $this->where('tipe_log', $filters['tipe_log']);
+        }
+
+        if (!empty($filters['login_id'])) {
+            $this->where('login_id', $filters['login_id']);
+        }
+
+        return $this->orderBy('log_date', 'DESC')->paginate($perPage, $group);
     }
 
     /**

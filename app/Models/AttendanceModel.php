@@ -55,8 +55,8 @@ class AttendanceModel extends Model
     public function getAttendanceWithStudents($filters = [])
     {
         $builder = $this->db->table($this->table)
-            ->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
-            ->join('students', 'students.pin = att_log.pin', 'left');
+            ->select('att_log.*, CONCAT(students.firstname, " ", students.lastname) as name, students.student_id as student_code')
+            ->join('students', 'students.student_id = att_log.student_id', 'left');
 
         // Apply filters
         if (!empty($filters['search'])) {
@@ -182,8 +182,8 @@ class AttendanceModel extends Model
      */
     public function getRecentAttendance($limit = 10)
     {
-        return $this->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
-                   ->join('students', 'students.pin = att_log.pin', 'left')
+        return $this->select('att_log.*, CONCAT(students.firstname, " ", students.lastname) as name, students.student_id as student_code')
+                   ->join('students', 'students.student_id = att_log.student_id', 'left')
                    ->orderBy('scan_date', 'DESC')
                    ->limit($limit)
                    ->findAll();

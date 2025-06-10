@@ -62,7 +62,7 @@ class AttendanceLogModel extends Model
     {
         $builder = $this->db->table($this->table)
             ->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
-            ->join('students', 'students.pin = att_log.pin', 'left');
+            ->join('students', 'students.student_id = att_log.student_id', 'left');
 
         // Apply filters
         if (!empty($filters['search'])) {
@@ -96,6 +96,49 @@ class AttendanceLogModel extends Model
         }
 
         return $builder->orderBy('att_log.scan_date', 'DESC');
+    }
+
+    /**
+     * Get paginated attendance logs with student information
+     */
+    public function getLogsWithStudentsPaginated($filters = [], $perPage = 20, $group = 'default')
+    {
+        // Apply filters to the model
+        $this->select('att_log.*, students.firstname, students.lastname, students.student_id as student_code')
+             ->join('students', 'students.student_id = att_log.student_id', 'left');
+
+        // Apply filters
+        if (!empty($filters['search'])) {
+            $this->groupStart()
+                ->like('students.firstname', $filters['search'])
+                ->orLike('students.lastname', $filters['search'])
+                ->orLike('students.student_id', $filters['search'])
+                ->orLike('att_log.pin', $filters['search'])
+                ->orLike('att_log.sn', $filters['search'])
+                ->groupEnd();
+        }
+
+        if (!empty($filters['date_from'])) {
+            $this->where('DATE(att_log.scan_date) >=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $this->where('DATE(att_log.scan_date) <=', $filters['date_to']);
+        }
+
+        if (!empty($filters['verifymode'])) {
+            $this->where('att_log.verifymode', $filters['verifymode']);
+        }
+
+        if (!empty($filters['inoutmode'])) {
+            $this->where('att_log.inoutmode', $filters['inoutmode']);
+        }
+
+        if (!empty($filters['sn'])) {
+            $this->where('att_log.sn', $filters['sn']);
+        }
+
+        return $this->orderBy('att_log.scan_date', 'DESC')->paginate($perPage, $group);
     }
 
     /**

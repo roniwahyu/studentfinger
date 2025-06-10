@@ -42,7 +42,7 @@ class DashboardController extends BaseController
             foreach ($recentLogs as $log) {
                 $data['recentAttendance'][] = [
                     'student_id' => $log['student_code'] ?? $log['pin'],
-                    'name' => trim(($log['firstname'] ?? '') . ' ' . ($log['lastname'] ?? '')) ?: 'Student #' . ($log['pin'] ?? 'Unknown'),
+                    'name' => $log['name'] ?? 'Student #' . ($log['pin'] ?? 'Unknown'),
                     'time_in' => date('H:i A', strtotime($log['scan_date'])),
                     'status' => $this->attendanceModel->getInOutModeLabel($log['inoutmode'] ?? 0),
                     'verify_mode' => $this->attendanceModel->getVerifyModeLabel($log['verifymode'] ?? 0)

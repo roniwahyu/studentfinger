@@ -14,7 +14,9 @@ class SessionModel extends Model
     protected $protectFields = true;
     
     protected $allowedFields = [
-        'session',
+        'name',
+        'start_date',
+        'end_date',
         'status'
     ];
     
@@ -25,12 +27,14 @@ class SessionModel extends Model
     protected $deletedField = 'deleted_at';
     
     protected $validationRules = [
-        'session' => 'required|min_length[1]|max_length[100]',
-        'status' => 'permit_empty|in_list[0,1]'
+        'name' => 'required|min_length[1]|max_length[100]',
+        'start_date' => 'permit_empty|valid_date[Y-m-d]',
+        'end_date' => 'permit_empty|valid_date[Y-m-d]',
+        'status' => 'permit_empty|in_list[Active,Inactive]'
     ];
-    
+
     protected $validationMessages = [
-        'session' => [
+        'name' => [
             'required' => 'Session name is required',
             'min_length' => 'Session name must be at least 1 character'
         ]
@@ -41,8 +45,8 @@ class SessionModel extends Model
      */
     public function getActiveSession()
     {
-        return $this->where('is_active', 1)
-                   ->where('status', 'Active')
+        return $this->where('status', 'Active')
+                   ->orderBy('start_date', 'DESC')
                    ->first();
     }
     

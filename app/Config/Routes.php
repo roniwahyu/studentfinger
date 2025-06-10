@@ -8,6 +8,8 @@ use CodeIgniter\Router\RouteCollection;
  */
 // Home routes
 $routes->get('/', 'HomeController::index');
+$routes->get('/test', 'TestController::index');
+$routes->get('/test/simple', 'TestController::simple');
 $routes->get('home', 'HomeController::index');
 
 // Load module routes
@@ -19,10 +21,13 @@ if (file_exists(APPPATH . 'Modules/FingerprintBridge/Config/Routes.php')) {
 $routes->group('students', function($routes) {
     $routes->get('/', 'StudentsController::index');
     $routes->get('create', 'StudentsController::create');
+    $routes->post('create', 'StudentsController::store');
     $routes->post('store', 'StudentsController::store');
     $routes->get('show/(:num)', 'StudentsController::show/$1');
     $routes->get('edit/(:num)', 'StudentsController::edit/$1');
+    $routes->post('edit/(:num)', 'StudentsController::update/$1');
     $routes->post('update/(:num)', 'StudentsController::update/$1');
+    $routes->get('delete/(:num)', 'StudentsController::delete/$1');
     $routes->delete('delete/(:num)', 'StudentsController::delete/$1');
     $routes->get('search', 'StudentsController::search');
     $routes->get('filter', 'StudentsController::filter');

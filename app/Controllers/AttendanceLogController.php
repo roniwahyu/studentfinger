@@ -28,8 +28,7 @@ class AttendanceLogController extends BaseController
         ];
 
         // Get attendance logs with pagination
-        $attendanceLogsBuilder = $this->AttendanceLogModel->getLogsWithStudents($filters);
-        $data['attendancelogs'] = $attendanceLogsBuilder->paginate(20);
+        $data['attendancelogs'] = $this->AttendanceLogModel->getLogsWithStudentsPaginated($filters, 20, 'default');
         $data['pager'] = $this->AttendanceLogModel->pager;
         $data['filters'] = $filters;
 
