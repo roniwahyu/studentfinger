@@ -17,8 +17,8 @@ class HomeController extends BaseController
 
         // Get dashboard statistics
         $data = [
-            'totalStudents' => $studentModel->where('status', 'Active')->countAllResults(),
-            'totalClasses' => $classModel->countAllResults(), // Remove status filter as classes table doesn't have status column
+            'totalStudents' => $studentModel->where('status', 1)->countAllResults(), // status is tinyint: 1=active, 0=inactive
+            'totalClasses' => $classModel->countAllResults(),
             'presentToday' => $attendanceModel->where('DATE(scan_date)', date('Y-m-d'))
                                             ->whereIn('inoutmode', [0, 1]) // Check-in modes
                                             ->groupBy('pin')

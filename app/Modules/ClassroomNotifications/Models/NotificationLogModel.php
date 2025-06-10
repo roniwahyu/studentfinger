@@ -214,6 +214,45 @@ class NotificationLogModel extends Model
                     ->limit($limit)
                     ->findAll();
     }
+
+    /**
+     * Get filtered notification logs with pagination
+     */
+    public function getFilteredLogs(int $limit = 50, int $offset = 0, array $filters = []): array
+    {
+        $builder = $this->select('notification_logs.*, students.firstname, students.lastname, class_sessions.session_name, class_sessions.subject')
+                        ->join('students', 'students.student_id = notification_logs.student_id', 'left')
+                        ->join('class_sessions', 'class_sessions.id = notification_logs.session_id', 'left');
+
+        // Apply filters
+        if (!empty($filters['status'])) {
+            $builder->where('notification_logs.status', $filters['status']);
+        }
+
+        if (!empty($filters['date_from'])) {
+            $builder->where('DATE(notification_logs.created_at) >=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $builder->where('DATE(notification_logs.created_at) <=', $filters['date_to']);
+        }
+
+        if (!empty($filters['search'])) {
+            $builder->groupStart()
+                    ->like('notification_logs.parent_name', $filters['search'])
+                    ->orLike('notification_logs.parent_phone', $filters['search'])
+                    ->orLike('notification_logs.message_content', $filters['search'])
+                    ->orLike('students.firstname', $filters['search'])
+                    ->orLike('students.lastname', $filters['search'])
+                    ->orLike('class_sessions.session_name', $filters['search'])
+                    ->orLike('class_sessions.subject', $filters['search'])
+                    ->groupEnd();
+        }
+
+        return $builder->orderBy('notification_logs.created_at', 'DESC')
+                       ->limit($limit, $offset)
+                       ->findAll();
+    }
     
     /**
      * Check if notification already sent

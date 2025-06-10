@@ -87,7 +87,7 @@ class WablasController extends Controller
             'messages' => $this->logModel->getFilteredLogs(50, 0, $filters),
             'filters' => $filters,
             'stats' => $this->getMessageStatistics(),
-            'connection_status' => $this->connectionModel->getCurrentStatus()
+            'connection_status' => $this->connectionModel->getConnectionStats()
         ];
         
         return view('App\Modules\WablasFrontEnd\Views\messages', $data);
@@ -140,7 +140,7 @@ class WablasController extends Controller
             'contact_groups' => $this->getContactGroups(),
             'templates' => $this->templateModel->where('is_active', 1)->findAll(),
             'recent_broadcasts' => $this->getRecentBroadcasts(10),
-            'connection_status' => $this->connectionModel->getCurrentStatus()
+            'connection_status' => $this->connectionModel->getConnectionStats()
         ];
         
         return view('App\Modules\WablasFrontEnd\Views\broadcast', $data);

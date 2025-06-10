@@ -72,11 +72,43 @@
             </div>
             
             <div class="row">
+                <div class="col-md-4">
+                    <div class="test-card">
+                        <h5><i class="fas fa-globe text-primary me-2"></i>All Main Pages</h5>
+                        <p class="text-muted">Comprehensive test of all main application pages</p>
+                        <a href="test_all_main_pages.php" class="btn btn-primary btn-test">
+                            <i class="fas fa-play me-1"></i>Run Test
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="test-card">
+                        <h5><i class="fas fa-cogs text-info me-2"></i>Application Endpoints</h5>
+                        <p class="text-muted">Test individual application endpoints</p>
+                        <a href="test_app.php" class="btn btn-info btn-test">
+                            <i class="fas fa-play me-1"></i>Run Test
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="test-card">
+                        <h5><i class="fas fa-database text-warning me-2"></i>Schema Validation</h5>
+                        <p class="text-muted">Validate database schema and structure</p>
+                        <a href="test_database_schema_validation.php" class="btn btn-warning btn-test">
+                            <i class="fas fa-play me-1"></i>Run Test
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-6">
                     <div class="test-card">
-                        <h5><i class="fas fa-globe text-primary me-2"></i>Application Endpoints</h5>
-                        <p class="text-muted">Test all main application endpoints and pages</p>
-                        <a href="test_app.php" class="btn btn-primary btn-test">
+                        <h5><i class="fas fa-search text-secondary me-2"></i>Actual Schema Check</h5>
+                        <p class="text-muted">Check actual database table structures</p>
+                        <a href="check_actual_schema.php" class="btn btn-secondary btn-test">
                             <i class="fas fa-play me-1"></i>Run Test
                         </a>
                     </div>
